@@ -23,6 +23,9 @@ Thumbs.db
 # Babel ES6
 dist
 
+# IoT Client
+.node-persist
+
 # npm
 .npm
 node_modules
