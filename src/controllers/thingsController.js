@@ -13,7 +13,7 @@ export class ThingsController {
                 const things = res.body.things;
                 const markdown = MarkdownBuilder.buildThingsListMD(things);
                 const options = {
-                    parse_mode:"Markdown",
+                    parse_mode: "Markdown",
                     disable_web_page_preview: true
                 };
                 this.bot.sendMessage(chatId, markdown, options);
