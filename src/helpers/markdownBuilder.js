@@ -10,8 +10,9 @@ export class MarkdownBuilder {
         return markdown;
     }
     static _buildThingMD(thing) {
-        let markdown = `[${thing.name}](${thing.googleMapsUrl})\n`;
+        let markdown = `\`${thing.name}\`\n`;
         markdown += `*ip*: ${thing.ip}\n`;
+        markdown += `*location*: [Google Maps URL](${thing.googleMapsUrl})\n`;
         markdown += `*last observation*: ${thing.lastObservation}\n`;
         const measurements = thing.supportedObservationTypes.measurement;
         const events = thing.supportedObservationTypes.event;
