@@ -1,12 +1,13 @@
 import { AuthController } from "./authController"
 import { ThingsController } from "./thingsController";
-import { MarkdownBuilder } from '../helpers/markdownBuilder';
+import { DefaultMessageController } from "./defaultMessageController";
 
 export class TelegramBotController {
     constructor(telegramBot, iotClient) {
         this.bot = telegramBot;
         this.authController = new AuthController(telegramBot);
         this.thingsController = new ThingsController(telegramBot, iotClient);
+        this.defaultMessageController = new DefaultMessageController(telegramBot);
     }
     listen() {
         this.bot.on('message', (msg) => {
@@ -21,13 +22,7 @@ export class TelegramBotController {
                 handledMessage = true;
             }
             if (!handledMessage) {
-                const chatId = msg.chat.id;
-                const markdown = MarkdownBuilder.buildDefaultMessageMD();
-                const options = {
-                    parse_mode: "Markdown",
-                    disable_web_page_preview: true
-                };
-                this.bot.sendMessage(chatId, markdown, options);
+                this.defaultMessageController.sendDefaultMessage(msg);
             }
         });
     }
