@@ -25,7 +25,7 @@ export class MarkdownBuilder {
         return markdown;
     }
     static _buildThingMD(thing) {
-        let markdown = `\`${thing.name}\`\n`;
+        let markdown = `*thing*: \`${thing.name}\`\n`;
         markdown += `*ip*: ${thing.ip}\n`;
         markdown += `*location*: [Google Maps URL](${thing.googleMapsUrl})\n`;
         markdown += `*last observation*: ${thing.lastObservation}\n`;
