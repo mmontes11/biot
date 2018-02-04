@@ -24,11 +24,11 @@ export class TelegramBotController {
                 let handledMessage = false;
                 const text = msg.text;
                 if (/\/things/.test(text)) {
-                    this.thingsController.handleMessage(msg);
+                    this.thingsController.handleThingsCommand(msg);
                     handledMessage = true;
                 }
                 if (/\/stats/.test(text)) {
-                    this.statsController.handleMessage(msg);
+                    this.statsController.handleStatsCommand(msg);
                     handledMessage = true;
                 }
                 if (!handledMessage) {

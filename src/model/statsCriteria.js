@@ -3,7 +3,7 @@ const StatsCriteriaID = Object.freeze({
     thing: "thing"
 });
 
-export class StatsCriteria {
+class StatsCriteria {
     constructor(id, name) {
         this.id = id;
         this.name = name;
@@ -15,3 +15,5 @@ export class StatsCriteria {
         return new StatsCriteria(StatsCriteriaID.thing, "Thing");
     }
 }
+
+export { StatsCriteriaID, StatsCriteria };

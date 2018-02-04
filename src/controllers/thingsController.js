@@ -6,7 +6,7 @@ export class ThingsController {
         this.bot = telegramBot;
         this.iotClient = iotClient;
     }
-    handleMessage(msg) {
+    handleThingsCommand(msg) {
         const chatId = msg.chat.id;
         this.iotClient.thingsService.getThings()
             .then((res) => {
