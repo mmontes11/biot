@@ -20,7 +20,15 @@ export class Log {
         const from = msg.from.username;
         const chatType = msg.chat.type;
         const chatId = msg.chat.id;
-        const message = msg.text;
-        this.logInfo(`@${from} sent a message in ${chatType} chat ${chatId}: ${message} (message time: ${messageDate.toISOString()})`);
+        const data = msg.data;
+        this.logInfo(`@${from} sent a message in ${chatType} chat ${chatId}: ${data} (message time: ${messageDate.toISOString()})`);
+    }
+    logCallbackQuery(callbackQuery) {
+        const messageDate = new Date(callbackQuery.message.date * 1000);
+        const from = callbackQuery.from.username;
+        const chatType = callbackQuery.message.chat.type;
+        const chatId = callbackQuery.message.chat.id;
+        const data = callbackQuery.data;
+        this.logInfo(`@${from} replied to a query in ${chatType} chat ${chatId}: ${data} (reply time: ${messageDate.toISOString()})`);
     }
 }

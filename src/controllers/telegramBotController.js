@@ -40,6 +40,7 @@ export class TelegramBotController {
         });
 
         this.bot.on('callback_query', (callbackQuery) => {
+            this.log.logCallbackQuery(callbackQuery);
             this.statsController.handleCallbackQuery(callbackQuery);
         });
 
