@@ -4,12 +4,6 @@ export class StatsParams {
     constructor(chatId) {
         this.chatId = chatId;
     }
-    setStatsCriteria(statsCriteria) {
-        this.statsCriteria = statsCriteria;
-    }
-    setAddress(address) {
-        this.address = address;
-    }
     setThing(thing) {
         this.thing = thing;
     }
@@ -18,9 +12,7 @@ export class StatsParams {
     }
     toJSON() {
         const json = {};
-        if (!_.isUndefined(this.address)) {
-            json['address'] = this.address;
-        } else if (!_.isUndefined(this.thing)) {
+        if (!_.isUndefined(this.thing)) {
             json['thing'] = this.thing
         }
         if (!_.isUndefined(this.timePeriod)) {

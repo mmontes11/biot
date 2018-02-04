@@ -1,10 +1,12 @@
 import { MarkdownBuilder } from '../helpers/markdownBuilder';
+import { ErrorHandler } from '../helpers/errorHandler';
 import errorMessages from '../util/errorMessages';
 
 export class ThingsController {
     constructor(telegramBot, iotClient) {
         this.bot = telegramBot;
         this.iotClient = iotClient;
+        this.errorHandler = new ErrorHandler(telegramBot);
     }
     handleThingsCommand(msg) {
         const chatId = msg.chat.id;
@@ -19,11 +21,7 @@ export class ThingsController {
                 this.bot.sendMessage(chatId, markdown, options);
             })
             .catch((err) => {
-                if (_.isEqual(err.statusCode, httpStatus.NOT_FOUND)) {
-                    this.bot.sendMessage(chatId, errorMessages.noThingsAvailable);
-                } else {
-                    this.bot.sendMessage(chatId, errorMessages.errorGettingThings);
-                }
+                this.errorHandler.handleThingsError(err, chatId);
             });
     }
 }

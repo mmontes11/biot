@@ -1,21 +1,22 @@
-import commandMessages from '../util/commandMessages';
 import _ from 'underscore';
-import { StatsCriteriaID, StatsCriteria } from '../model/statsCriteria';
+import httpStatus from 'http-status';
 import { StatsParams } from '../model/statsParams';
 import { MarkdownBuilder } from '../helpers/markdownBuilder';
+import { ErrorHandler } from '../helpers/errorHandler';
+import commandMessages from '../util/commandMessages';
+import errorMessages from '../util/errorMessages';
 
 export class StatsController {
     constructor(telegramBot, iotClient) {
         this.bot = telegramBot;
         this.iotClient = iotClient;
-        this.availableStatsCriteria = [ StatsCriteria.addressStatsCriteria(), StatsCriteria.thingStatsCriteria() ];
         this.statsParamsByChat = [];
+        this.errorHandler = new ErrorHandler(telegramBot);
     }
     handleStatsCommand(msg) {
         const chatId = msg.chat.id;
-        this._deleteStatsParamsIfNeeded(chatId);
-
-        this._showStatsCriteria(chatId);
+        this._deleteStatsParams(chatId);
+        this._selectThings(chatId);
     }
     handleCallbackQuery(callbackQuery) {
         const chatId = callbackQuery.message.chat.id;
@@ -23,92 +24,45 @@ export class StatsController {
         const callbackQueryData = callbackQuery.data;
         const answerCallbackQuery = () => this.bot.answerCallbackQuery(callbackQuery.id);
 
-        if (_.isUndefined(statsParams.statsCriteria)){
-            statsParams.setStatsCriteria(callbackQueryData);
-
-            this._selectStatsCriteria(chatId, callbackQueryData, answerCallbackQuery);
-
-        } else if (_.isUndefined(statsParams.thing)) {
+        if (_.isUndefined(statsParams.thing)) {
             statsParams.setThing(callbackQueryData);
-
-            this._selectStatsTimePeriod(chatId, answerCallbackQuery);
-
-        } else if (_.isUndefined(statsParams.timePeriod)) {
+            this._selectTimePeriod(chatId, answerCallbackQuery);
+        } else if (!_.isUndefined(statsParams.thing) && _.isUndefined(statsParams.timePeriod)) {
             statsParams.setTimePeriod(callbackQueryData);
-
+            this._deleteStatsParams(chatId);
             this._showStats(chatId, statsParams, answerCallbackQuery);
         } else {
-            answerCallbackQuery();
-            this._showStatsCriteria(chatId)
+            this._deleteStatsParams(chatId);
+            this._selectThings(chatId, answerCallbackQuery)
         }
     }
-    _showStatsCriteria(chatId) {
-        const inlineKeyboards = _.map(this.availableStatsCriteria, (availableStatsCriteria) => {
-            return {
-                text: availableStatsCriteria.name,
-                callback_data: availableStatsCriteria.id
-            };
-        });
-        const options = {
-            reply_markup: {
-                inline_keyboard: [ inlineKeyboards ]
-            }
-        };
-        this.bot.sendMessage(chatId, commandMessages.statsByMessage, options);
+    _selectThings(chatId, statsCriteria, answerCallbackQuery) {
+        this.iotClient.thingsService.getThings()
+            .then((response) => {
+                const things = _.map(response.body.things, (thing) => {
+                    return {
+                        text: thing.name,
+                        callback_data: thing.name
+                    };
+                });
+                const options = {
+                    reply_markup: {
+                        inline_keyboard: [ things ]
+                    }
+                };
+                if (!_.isUndefined(answerCallbackQuery)) {
+                    answerCallbackQuery();
+                }
+                this.bot.sendMessage(chatId, commandMessages.thingSelectMessage, options);
+            })
+            .catch((err) => {
+                if (!_.isUndefined(answerCallbackQuery)) {
+                    answerCallbackQuery();
+                }
+                this.errorHandler.handleThingsError(err, chatId);
+            });
     }
-    _deleteStatsParamsIfNeeded(chatId) {
-        const statsParamsIndex = _.findIndex(this.statsParamsByChat, (statsParams) => {
-            return statsParams.chatId === chatId;
-        });
-        if (statsParamsIndex != -1) {
-            this.statsParamsByChat.splice(statsParamsIndex, 1);
-        }
-    }
-    _getOrCreateStatsParams(chatId) {
-        let statsParams =  _.find(this.statsParamsByChat, { chatId });
-
-        if (_.isUndefined(statsParams)) {
-            statsParams = new StatsParams(chatId);
-            this.statsParamsByChat.push(statsParams);
-
-            return statsParams
-        } else {
-            return statsParams
-        }
-    }
-    _selectStatsCriteria(chatId, statsCriteria, answerCallbackQuery) {
-        switch (statsCriteria) {
-            case StatsCriteriaID.address: {
-                answerCallbackQuery();
-                this.bot.sendMessage(chatId, commandMessages.addressTypeMessage);
-                break;
-            }
-            case StatsCriteriaID.thing: {
-                this.iotClient.thingsService.getThings()
-                    .then((response) => {
-                        const things = _.map(response.body.things, (thing) => {
-                            return {
-                                text: thing.name,
-                                callback_data: thing.name
-                            };
-                        });
-                        const options = {
-                            reply_markup: {
-                                inline_keyboard: [ things ]
-                            }
-                        };
-                        answerCallbackQuery();
-                        this.bot.sendMessage(chatId, commandMessages.thingSelectMessage, options);
-                    })
-                    .catch((err) => {
-                        answerCallbackQuery();
-                        throw err;
-                    });
-                break;
-            }
-        }
-    }
-    _selectStatsTimePeriod(chatId, answerCallbackQuery) {
+    _selectTimePeriod(chatId, answerCallbackQuery) {
         this.iotClient.timePeriodsService.getSupportedTimePeriods()
             .then((response) => {
                 const timePeriods = _.map(response.body.timePeriods, (timePeriod) => {
@@ -127,7 +81,7 @@ export class StatsController {
             })
             .catch((err) => {
                 answerCallbackQuery();
-                throw err;
+                this.errorHandler.handleTimePeriodsError(err, chatId);
             });
     }
     _showStats(chatId, statsParams, answerCallbackQuery) {
@@ -144,7 +98,27 @@ export class StatsController {
             })
             .catch((err) => {
                 answerCallbackQuery();
-                throw err;
+                this.errorHandler.handleStatsError(err, chatId);
             });
+    }
+    _deleteStatsParams(chatId) {
+        const statsParamsIndex = _.findIndex(this.statsParamsByChat, (statsParams) => {
+            return statsParams.chatId === chatId;
+        });
+        if (statsParamsIndex != -1) {
+            this.statsParamsByChat.splice(statsParamsIndex, 1);
+        }
+    }
+    _getOrCreateStatsParams(chatId) {
+        let statsParams =  _.find(this.statsParamsByChat, (statsParams) => {
+            return statsParams.chatId === chatId;
+        });
+        if (_.isUndefined(statsParams)) {
+            statsParams = new StatsParams(chatId);
+            this.statsParamsByChat.push(statsParams);
+            return statsParams
+        } else {
+            return statsParams
+        }
     }
 }
