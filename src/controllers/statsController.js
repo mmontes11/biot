@@ -1,24 +1,24 @@
 import commandMessages from '../util/commandMessages';
+import _ from 'underscore';
+import { StatsCriteria } from '../model/statsCriteria';
 
 export class StatsController {
     constructor(telegramBot, iotClient) {
         this.bot = telegramBot;
         this.iotClient = iotClient;
+        this.availableStatsCriteria = [ StatsCriteria.addressStatsCriteria(), StatsCriteria.thingStatsCriteria() ];
     }
     handleMessage(msg) {
         const chatId = msg.chat.id;
+        const inlineKeyboards = _.map(this.availableStatsCriteria, (availableStatsCriteria) => {
+            return {
+                text: availableStatsCriteria.name,
+                callback_data: availableStatsCriteria.id
+            };
+        });
         const options = {
             reply_markup: {
-                inline_keyboard: [[
-                    {
-                        text: "Address",
-                        callback_data: "Address"
-                    },
-                    {
-                        text: "Thing",
-                        callback_data: "Thing"
-                    }
-                ]]
+                inline_keyboard: [ inlineKeyboards ]
             }
         };
         this.bot.sendMessage(chatId, commandMessages.statsByMessage, options);
