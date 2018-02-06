@@ -31,6 +31,7 @@
   "dependencies": {
     "@mmontes11/iot-client": "latest",
     "http-status": "^1.0.1",
+    "node-emoji": "^1.8.1",
     "node-telegram-bot-api": "^0.30.0",
     "underscore": "^1.8.3",
     "winston": "^2.4.0"

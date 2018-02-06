@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import { EmojiHandler } from './emojiHandler'
 
 export class MarkdownBuilder {
     static buildDefaultMessageMD() {
@@ -43,12 +44,23 @@ export class MarkdownBuilder {
         return markdown;
     }
     static _buildStatsMD(statsElement) {
+        let emojiHandler = new EmojiHandler(statsElement.data.type);
         let markdown = `*thing*: \`${statsElement.data.thing}\`\n`;
         markdown += `*type*: \`${statsElement.data.type}\`\n`;
-        markdown += `*avg*: ${statsElement.avg}\n`;
-        markdown += `*max*: ${statsElement.max}\n`;
-        markdown += `*min*: ${statsElement.min}\n`;
+        markdown += MarkdownBuilder.buildStatsElementMD('avg', statsElement.avg, emojiHandler);
+        markdown += MarkdownBuilder.buildStatsElementMD('max', statsElement.max, emojiHandler);
+        markdown += MarkdownBuilder.buildStatsElementMD('min', statsElement.min, emojiHandler);
         markdown += `*stdDev*: ${statsElement.stdDev}\n`;
+        return markdown;
+    }
+    static buildStatsElementMD(statsName, value, emojiHandler) {
+        let markdown = `*${statsName}*: ${value}`;
+        let emoji = emojiHandler.emojiForValue(value);
+        if (!_.isUndefined(emoji)) {
+            markdown += ` ${emoji}\n`;
+        } else {
+            markdown += "\n";
+        }
         return markdown;
     }
 }
