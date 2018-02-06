@@ -5,7 +5,8 @@ export class MarkdownBuilder {
         let markdown = `I'm an [Internet of Things](https://en.wikipedia.org/wiki/Internet_of_things) bot. `;
         markdown += `I can notify you about measurements and events in your things.\n\n`;
         markdown += `Available commands:\n`;
-        markdown += `/things - List things`;
+        markdown += `/things - Lists things\n`;
+        markdown += `/stats - Provides measurement stats\n`;
         return markdown;
     }
     static buildThingsListMD(things) {
