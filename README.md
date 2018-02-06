@@ -1,4 +1,6 @@
 # biot
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Telegram IoT bot that notifies you about measurements and events in your things. It consumes [IoT backend](https://github.com/mmontes11/iot-backend) REST API via [IoT client](https://github.com/mmontes11/iot_client).
 
 ### Run in development
