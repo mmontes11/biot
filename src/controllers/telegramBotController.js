@@ -2,6 +2,7 @@ import { AuthController } from "./authController"
 import { ThingsController } from "./thingsController";
 import { DefaultMessageController } from "./defaultMessageController";
 import { StatsController } from "./statsController";
+import { CallbackData } from "../models/callbackData";
 import { Log } from '../util/log';
 
 export class TelegramBotController {
@@ -41,7 +42,10 @@ export class TelegramBotController {
 
         this.bot.on('callback_query', (callbackQuery) => {
             this.log.logCallbackQuery(callbackQuery);
-            this.statsController.handleCallbackQuery(callbackQuery);
+            let callbackData = CallbackData.deserialize(callbackQuery.data);
+            if (this.statsController.canHandleCallbackData(callbackData)) {
+                this.statsController.handleCallbackQuery(callbackQuery, callbackData);
+            }
         });
 
         this.bot.on('polling_error', (err) => {

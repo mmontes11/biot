@@ -1,8 +1,9 @@
 import _ from 'underscore';
 import httpStatus from 'http-status';
-import { StatsParams } from '../model/statsParams';
+import { StatsParams } from '../models/statsParams';
 import { MarkdownBuilder } from '../helpers/markdownBuilder';
 import { ErrorHandler } from '../helpers/errorHandler';
+import { CallbackData, CallbackDataType } from "../models/callbackData"
 import commandMessages from '../util/commandMessages';
 import errorMessages from '../util/errorMessages';
 
@@ -11,38 +12,58 @@ export class StatsController {
         this.bot = telegramBot;
         this.iotClient = iotClient;
         this.statsParamsByChat = [];
+        this.supportedCallbackDataTypes = [ CallbackDataType.selectThing, CallbackDataType.selectTimePeriod ];
         this.errorHandler = new ErrorHandler(telegramBot);
     }
     handleStatsCommand(msg) {
         const chatId = msg.chat.id;
-        this._deleteStatsParams(chatId);
-        this._selectThings(chatId);
+        this._start(chatId);
     }
-    handleCallbackQuery(callbackQuery) {
+    canHandleCallbackData(callbackData) {
+        return _.contains(this.supportedCallbackDataTypes, callbackData.type);
+    }
+    handleCallbackQuery(callbackQuery, callbackData) {
         const chatId = callbackQuery.message.chat.id;
         const statsParams = this._getOrCreateStatsParams(chatId);
-        const callbackQueryData = callbackQuery.data;
         const answerCallbackQuery = () => this.bot.answerCallbackQuery(callbackQuery.id);
 
-        if (_.isUndefined(statsParams.thing)) {
-            statsParams.setThing(callbackQueryData);
-            this._selectTimePeriod(chatId, answerCallbackQuery);
-        } else if (!_.isUndefined(statsParams.thing) && _.isUndefined(statsParams.timePeriod)) {
-            statsParams.setTimePeriod(callbackQueryData);
-            this._deleteStatsParams(chatId);
-            this._showStats(chatId, statsParams, answerCallbackQuery);
-        } else {
-            this._deleteStatsParams(chatId);
-            this._selectThings(chatId, answerCallbackQuery)
+        switch (callbackData.type) {
+            case CallbackDataType.selectThing: {
+                if (_.isUndefined(statsParams.thing)) {
+                    statsParams.setThing(callbackData.data);
+                    this._selectTimePeriod(chatId, answerCallbackQuery);
+                } else {
+                    this._start(chatId);
+                }
+                break;
+            }
+            case CallbackDataType.selectTimePeriod: {
+                if (!_.isUndefined(statsParams.thing) && _.isUndefined(statsParams.timePeriod)) {
+                    statsParams.setTimePeriod(callbackData.data);
+                    this._deleteStatsParams(chatId);
+                    this._showStats(chatId, statsParams, answerCallbackQuery);
+                } else {
+                    this._start(chatId);
+                }
+                break;
+            }
+            default: {
+                this._start(chatId);
+            }
         }
+    }
+    _start(chatId) {
+        this._deleteStatsParams(chatId);
+        this._selectThings(chatId);
     }
     _selectThings(chatId, statsCriteria, answerCallbackQuery) {
         this.iotClient.thingsService.getThings()
             .then((response) => {
                 const things = _.map(response.body.things, (thing) => {
+                    const callbackData = new CallbackData(CallbackDataType.selectThing, thing.name);
                     return {
                         text: thing.name,
-                        callback_data: thing.name
+                        callback_data: callbackData.serialize()
                     };
                 });
                 const options = {
@@ -66,9 +87,10 @@ export class StatsController {
         this.iotClient.timePeriodsService.getSupportedTimePeriods()
             .then((response) => {
                 const timePeriods = _.map(response.body.timePeriods, (timePeriod) => {
+                    const callbackData = new CallbackData(CallbackDataType.selectTimePeriod, timePeriod);
                     return {
                         text: timePeriod,
-                        callback_data: timePeriod
+                        callback_data: callbackData.serialize()
                     }
                 });
                 const options = {
@@ -105,7 +127,7 @@ export class StatsController {
         const statsParamsIndex = _.findIndex(this.statsParamsByChat, (statsParams) => {
             return statsParams.chatId === chatId;
         });
-        if (statsParamsIndex != -1) {
+        if (statsParamsIndex !== -1) {
             this.statsParamsByChat.splice(statsParamsIndex, 1);
         }
     }
