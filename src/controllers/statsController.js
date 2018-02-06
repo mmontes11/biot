@@ -26,6 +26,10 @@ export class StatsController {
         const chatId = callbackQuery.message.chat.id;
         const statsParams = this._getOrCreateStatsParams(chatId);
         const answerCallbackQuery = () => this.bot.answerCallbackQuery(callbackQuery.id);
+        const reset = () => {
+            answerCallbackQuery();
+            this._start(chatId);
+        };
 
         switch (callbackData.type) {
             case CallbackDataType.selectThing: {
@@ -33,7 +37,7 @@ export class StatsController {
                     statsParams.setThing(callbackData.data);
                     this._selectTimePeriod(chatId, answerCallbackQuery);
                 } else {
-                    this._start(chatId);
+                    reset();
                 }
                 break;
             }
@@ -43,12 +47,12 @@ export class StatsController {
                     this._deleteStatsParams(chatId);
                     this._showStats(chatId, statsParams, answerCallbackQuery);
                 } else {
-                    this._start(chatId);
+                    reset();
                 }
                 break;
             }
             default: {
-                this._start(chatId);
+                reset();
             }
         }
     }
