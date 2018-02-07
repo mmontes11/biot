@@ -18,8 +18,8 @@ export class MarkdownBuilder {
         });
         return markdown;
     }
-    static buildStatsListMD(stats) {
-        let markdown = "";
+    static buildStatsListMD(statsParams, stats) {
+        let markdown = `\`${statsParams.thing}\` stats by ${statsParams.timePeriod}:\n\n`;
         _.forEach(stats, (statsElement) => {
             markdown += MarkdownBuilder._buildStatsMD(statsElement);
             markdown += '\n';
@@ -45,8 +45,7 @@ export class MarkdownBuilder {
     }
     static _buildStatsMD(statsElement) {
         let emojiHandler = new EmojiHandler(statsElement.data.type);
-        let markdown = `*thing*: \`${statsElement.data.thing}\`\n`;
-        markdown += `*type*: \`${statsElement.data.type}\`\n`;
+        let markdown = `*type*: \`${statsElement.data.type}\`\n`;
         markdown += MarkdownBuilder.buildStatsElementMD('avg', statsElement.avg, emojiHandler);
         markdown += MarkdownBuilder.buildStatsElementMD('max', statsElement.max, emojiHandler);
         markdown += MarkdownBuilder.buildStatsElementMD('min', statsElement.min, emojiHandler);

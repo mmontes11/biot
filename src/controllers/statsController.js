@@ -114,7 +114,7 @@ export class StatsController {
         this.iotClient.measurementService.getStats(statsParams.toJSON())
             .then((response) => {
                 const stats = response.body.stats;
-                const markdown = MarkdownBuilder.buildStatsListMD(stats);
+                const markdown = MarkdownBuilder.buildStatsListMD(statsParams, stats);
                 const options = {
                     parse_mode: "Markdown",
                     disable_web_page_preview: true
