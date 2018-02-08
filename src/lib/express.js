@@ -32,7 +32,7 @@ if (config.debug) {
                 timestamp: true,
                 json: false,
                 colorize: true,
-                filename: 'log-iot-express.log'
+                filename: 'log-biot-express.log'
             })
         ],
         meta: true,

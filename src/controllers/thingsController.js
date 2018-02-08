@@ -8,20 +8,19 @@ export class ThingsController {
         this.iotClient = iotClient;
         this.errorHandler = new ErrorHandler(telegramBot);
     }
-    handleThingsCommand(msg) {
+    async handleThingsCommand(msg) {
         const chatId = msg.chat.id;
-        this.iotClient.thingsService.getThings()
-            .then((res) => {
-                const things = res.body.things;
-                const markdown = MarkdownBuilder.buildThingsListMD(things);
-                const options = {
-                    parse_mode: "Markdown",
-                    disable_web_page_preview: true
-                };
-                this.bot.sendMessage(chatId, markdown, options);
-            })
-            .catch((err) => {
-                this.errorHandler.handleThingsError(err, chatId);
-            });
+        try {
+            const response = await this.iotClient.thingsService.getThings();
+            const things = response.body.things;
+            const markdown = MarkdownBuilder.buildThingsListMD(things);
+            const options = {
+                parse_mode: "Markdown",
+                disable_web_page_preview: true
+            };
+            this.bot.sendMessage(chatId, markdown, options);
+        } catch (err) {
+            this.errorHandler.handleThingsError(err, chatId);
+        }
     }
 }
