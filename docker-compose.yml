@@ -1,0 +1,15 @@
+version: '2'
+services:
+  nginx:
+    build: nginx
+    ports:
+      - "${NGINX_EXTERNAL_PORT}:${NGINX_INTERNAL_PORT}"
+    links:
+      - biot
+    restart: always
+  biot:
+    build: .
+    env_file:
+      - .env
+    expose:
+      - "${NODE_PORT}"
