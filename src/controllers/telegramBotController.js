@@ -16,6 +16,8 @@ class TelegramBotController {
         this.defaultMessageController = new DefaultMessageController(telegramBot);
     }
     listen() {
+        log.logInfo("Telegram bot started polling");
+
         this.bot.on('message', (msg) => {
             try {
                 log.logMessage(msg);
@@ -52,6 +54,15 @@ class TelegramBotController {
         this.bot.on('polling_error', (err) => {
             log.logError(err);
         });
+    }
+    async stop() {
+        try {
+            await this.bot.stopPolling();
+            log.logInfo("Telegram bot stopped polling");
+        } catch (err) {
+            log.logError("Telegram bot error stopping polling");
+            log.logError(err);
+        }
     }
 }
 
