@@ -1,7 +1,8 @@
 import winston from '../lib/winston';
 import _ from 'underscore';
+import config from '../config/index';
 
-export class Log {
+class Log {
     constructor(debug) {
         this.debug = debug;
     }
@@ -32,3 +33,7 @@ export class Log {
         this.logInfo(`@${from} replied to a query in ${chatType} chat ${chatId}: ${data} (reply time: ${messageDate.toISOString()})`);
     }
 }
+
+const log = new Log(config.debug);
+
+export default log;

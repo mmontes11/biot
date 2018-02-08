@@ -4,8 +4,8 @@ import { StatsParams } from '../models/statsParams';
 import { MarkdownBuilder } from '../helpers/markdownBuilder';
 import { ErrorHandler } from '../helpers/errorHandler';
 import { CallbackData, CallbackDataType } from "../models/callbackData"
-import commandMessages from '../util/commandMessages';
-import errorMessages from '../util/errorMessages';
+import commandMessages from '../utils/commandMessages';
+import errorMessages from '../utils/errorMessages';
 
 export class StatsController {
     constructor(telegramBot, iotClient) {

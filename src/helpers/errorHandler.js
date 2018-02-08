@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import httpStatus from 'http-status';
-import errorMessages from '../util/errorMessages'
+import errorMessages from '../utils/errorMessages'
 
 export class ErrorHandler {
     constructor(telegramBot) {
