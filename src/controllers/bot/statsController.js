@@ -1,11 +1,11 @@
 import _ from 'underscore';
 import httpStatus from 'http-status';
-import { StatsParams } from '../models/statsParams';
-import { MarkdownBuilder } from '../helpers/markdownBuilder';
-import { ErrorHandler } from '../helpers/errorHandler';
-import { CallbackData, CallbackDataType } from "../models/callbackData"
-import commandMessages from '../utils/commandMessages';
-import errorMessages from '../utils/errorMessages';
+import { StatsParams } from '../../models/statsParams';
+import { MarkdownBuilder } from '../../helpers/markdownBuilder';
+import { ErrorHandler } from '../../helpers/errorHandler';
+import { CallbackData, CallbackDataType } from "../../models/callbackData"
+import commandMessages from '../../utils/commandMessages';
+import errorMessages from '../../utils/errorMessages';
 
 export class StatsController {
     constructor(telegramBot, iotClient) {

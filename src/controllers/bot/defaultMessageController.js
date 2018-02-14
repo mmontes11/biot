@@ -1,4 +1,4 @@
-import { MarkdownBuilder } from '../helpers/markdownBuilder';
+import { MarkdownBuilder } from '../../helpers/markdownBuilder';
 
 export class DefaultMessageController {
     constructor(telegramBot) {

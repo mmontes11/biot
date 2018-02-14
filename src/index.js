@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import telegramBotController from "./controllers/telegramBotController";
+import telegramBotController from "./controllers/bot/telegramBotController";
 import express from './lib/express';
 import { Server } from 'http';
 import config from './config/index';

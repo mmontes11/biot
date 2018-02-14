@@ -2,10 +2,11 @@ import { AuthController } from "./authController"
 import { ThingsController } from "./thingsController";
 import { DefaultMessageController } from "./defaultMessageController";
 import { StatsController } from "./statsController";
-import { CallbackData } from "../models/callbackData";
-import telegramBot from '../lib/telgramBot';
-import iotClient from '../lib/iotClient';
-import log from '../utils/log';
+import { NotificationsController } from "./notificationsController"
+import { CallbackData } from "../../models/callbackData";
+import telegramBot from '../../lib/telgramBot';
+import iotClient from '../../lib/iotClient';
+import log from '../../utils/log';
 
 class TelegramBotController {
     constructor(telegramBot, iotClient) {
@@ -14,6 +15,7 @@ class TelegramBotController {
         this.thingsController = new ThingsController(telegramBot, iotClient);
         this.statsController = new StatsController(telegramBot, iotClient);
         this.defaultMessageController = new DefaultMessageController(telegramBot);
+        this.notificationsController = new NotificationsController(telegramBot);
     }
     listen() {
         log.logInfo("Telegram bot started polling");
@@ -54,6 +56,9 @@ class TelegramBotController {
         this.bot.on('polling_error', (err) => {
             log.logError(err);
         });
+    }
+    handleNotifications(notifications) {
+        this.notificationsController.handleNotifications(notifications);
     }
     async stop() {
         try {

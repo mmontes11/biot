@@ -1,5 +1,8 @@
 export default {
     env: 'development',
     nodePort: 9000,
-    debug: true
+    debug: true,
+    basicAuthUsers: {
+        admin: 'admin'
+    }
 };

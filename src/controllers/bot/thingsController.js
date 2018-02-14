@@ -1,6 +1,6 @@
-import { MarkdownBuilder } from '../helpers/markdownBuilder';
-import { ErrorHandler } from '../helpers/errorHandler';
-import errorMessages from '../utils/errorMessages';
+import { MarkdownBuilder } from '../../helpers/markdownBuilder';
+import { ErrorHandler } from '../../helpers/errorHandler';
+import errorMessages from '../../utils/errorMessages';
 
 export class ThingsController {
     constructor(telegramBot, iotClient) {
