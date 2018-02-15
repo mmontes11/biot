@@ -48,7 +48,7 @@ class TelegramBotController {
         this.bot.on('callback_query', (callbackQuery) => {
             log.logCallbackQuery(callbackQuery);
             let callbackData = CallbackData.deserialize(callbackQuery.data);
-            if (this.statsController.canHandleCallbackData(callbackData)) {
+            if (StatsController.canHandleCallbackData(callbackData)) {
                 this.statsController.handleCallbackQuery(callbackQuery, callbackData);
             }
         });

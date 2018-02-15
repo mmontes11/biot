@@ -7,6 +7,6 @@ const router = express.Router();
 
 router
     .route('/')
-        .post(expressBasicAuth({ users: config.basicAuthUsers}), notificationsController.validateReceiveNotifications, notificationsController.receiveNotifications);
+        .post(expressBasicAuth({ users: config.basicAuthUsers}), notificationsController.sendNotifications);
 
 export default router;

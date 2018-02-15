@@ -1,8 +1,9 @@
 import httpStatus from 'http-status';
 import _ from 'underscore';
 import telegramBotController from '../bot/telegramBotController';
+import { NotificationType , supportedNotificationTypes } from "../../models/notificationType"
 
-const validateReceiveNotifications = (req, res, next) => {
+const sendNotifications = (req, res, next) => {
     const notifications = req.body.notifications;
     if (!_.isArray(notifications)) {
         return res.sendStatus(httpStatus.BAD_REQUEST);
@@ -10,14 +11,34 @@ const validateReceiveNotifications = (req, res, next) => {
     if (_.isEmpty(notifications)) {
         return res.sendStatus(httpStatus.NOT_MODIFIED);
     }
-    next();
+
+    let validNotifications = [];
+    let invalidNotifications = [];
+    _.forEach(notifications, (notification) => {
+        if (_isValidNotification(notification)) {
+            validNotifications.push(notification);
+        } else {
+            invalidNotifications.push(notification);
+        }
+    });
+
+    if (_.isEmpty(validNotifications)) {
+        return res.status(httpStatus.BAD_REQUEST).json({ invalidNotifications });
+    } else {
+        if (_.isEmpty(invalidNotifications)) {
+            res.status(httpStatus.OK).json({ sentNotifications: validNotifications });
+        } else {
+            res.status(httpStatus.MULTI_STATUS).json({ sentNotifications: validNotifications, invalidNotifications});
+        }
+        telegramBotController.handleNotifications(validNotifications);
+    }
 };
 
-
-const receiveNotifications = (req, res) => {
-    const notifications = req.body.notifications;
-    telegramBotController.handleNotifications(notifications);
-    res.sendStatus(httpStatus.OK);
+const _isValidNotification = (notification) => {
+    const invalidNotificationType = _.isUndefined(notification.type) || !_.contains(supportedNotificationTypes, notification.type);
+    const invalidFields = _.isUndefined(notification.chatId) || _.isUndefined(notification.thing) || _.isUndefined(notification.observation);
+    const invalidValueChangedNotification = _.isEqual(notification.type, NotificationType.valueChanged) && _.isUndefined(notification.valueChanges);
+    return !(invalidNotificationType || invalidFields || invalidValueChangedNotification);
 };
 
-export default { validateReceiveNotifications, receiveNotifications };
+export default { sendNotifications };

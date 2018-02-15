@@ -6,6 +6,6 @@ export class NotificationsController {
     }
     handleNotifications(notifications) {
         log.logInfo("Received notifications");
-        log.logInfo(notifications);
+        log.logInfo(JSON.stringify(notifications));
     }
 }

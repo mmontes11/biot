@@ -21,4 +21,6 @@ class CallbackData {
     }
 }
 
-export { CallbackDataType, CallbackData };
+const supportedCallbackDataTypes = [ CallbackDataType.selectThing, CallbackDataType.selectTimePeriod ];
+
+export { CallbackDataType, CallbackData, supportedCallbackDataTypes };
