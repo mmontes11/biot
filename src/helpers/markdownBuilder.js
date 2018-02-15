@@ -46,13 +46,13 @@ export class MarkdownBuilder {
     static _buildStatsMD(statsElement) {
         let emojiHandler = new EmojiHandler(statsElement.data.type);
         let markdown = `*type*: \`${statsElement.data.type}\`\n`;
-        markdown += MarkdownBuilder.buildStatsElementMD('avg', statsElement.avg, emojiHandler);
-        markdown += MarkdownBuilder.buildStatsElementMD('max', statsElement.max, emojiHandler);
-        markdown += MarkdownBuilder.buildStatsElementMD('min', statsElement.min, emojiHandler);
+        markdown += MarkdownBuilder._buildStatsElementMD('avg', statsElement.avg, emojiHandler);
+        markdown += MarkdownBuilder._buildStatsElementMD('max', statsElement.max, emojiHandler);
+        markdown += MarkdownBuilder._buildStatsElementMD('min', statsElement.min, emojiHandler);
         markdown += `*stdDev*: ${statsElement.stdDev}\n`;
         return markdown;
     }
-    static buildStatsElementMD(statsName, value, emojiHandler) {
+    static _buildStatsElementMD(statsName, value, emojiHandler) {
         let markdown = `*${statsName}*: ${value}`;
         let emoji = emojiHandler.emojiForValue(value);
         if (!_.isUndefined(emoji)) {

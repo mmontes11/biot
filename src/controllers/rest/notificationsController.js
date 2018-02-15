@@ -3,7 +3,7 @@ import _ from 'underscore';
 import telegramBotController from '../bot/telegramBotController';
 import { NotificationType , supportedNotificationTypes } from "../../models/notificationType"
 
-const sendNotifications = (req, res, next) => {
+const sendNotifications = async (req, res, next) => {
     const notifications = req.body.notifications;
     if (!_.isArray(notifications)) {
         return res.sendStatus(httpStatus.BAD_REQUEST);
@@ -14,23 +14,29 @@ const sendNotifications = (req, res, next) => {
 
     let validNotifications = [];
     let invalidNotifications = [];
-    _.forEach(notifications, (notification) => {
+    for (const notification of notifications) {
         if (_isValidNotification(notification)) {
             validNotifications.push(notification);
         } else {
             invalidNotifications.push(notification);
         }
-    });
+    }
 
     if (_.isEmpty(validNotifications)) {
         return res.status(httpStatus.BAD_REQUEST).json({ invalidNotifications });
     } else {
-        if (_.isEmpty(invalidNotifications)) {
-            res.status(httpStatus.OK).json({ sentNotifications: validNotifications });
+        const handledNotifications = await telegramBotController.handleNotifications(validNotifications);
+        if (_.isEmpty(invalidNotifications) && _.isEmpty(handledNotifications.erroredNotifications)) {
+            res.status(httpStatus.OK).json({
+                sentNotifications: handledNotifications.sentNotifications
+            });
         } else {
-            res.status(httpStatus.MULTI_STATUS).json({ sentNotifications: validNotifications, invalidNotifications});
+            res.status(httpStatus.MULTI_STATUS).json({
+                sentNotifications: handledNotifications.sentNotifications,
+                erroredNotifications: handledNotifications.erroredNotifications,
+                invalidNotifications
+            });
         }
-        telegramBotController.handleNotifications(validNotifications);
     }
 };
 

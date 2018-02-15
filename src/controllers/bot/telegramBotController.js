@@ -57,8 +57,8 @@ class TelegramBotController {
             log.logError(err);
         });
     }
-    handleNotifications(notifications) {
-        this.notificationsController.handleNotifications(notifications);
+    async handleNotifications(notifications) {
+        return await this.notificationsController.handleNotifications(notifications);
     }
     async stop() {
         try {
