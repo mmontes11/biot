@@ -41,6 +41,6 @@ class Log {
     }
 }
 
-const log = new Log(config.debug);
+const log = new Log(config.biotDebug);
 
 export default log;

@@ -1,26 +1,18 @@
 import emojiLib from 'node-emoji';
-
-const temperaturePrefix = process.env.BIOT_TEMPERATURE_PREFIX;
-const highTemperatureThreshold = parseFloat(process.env.BIOT_HIGH_TEMPERATURE_THRESHOLD);
-const lowTemperatureThreshold =parseFloat(process.env.BIOT_LOW_TEMPERATURE_THRESHOLD);
-const humidityPrefix = process.env.BIOT_HUMIDITY_PREFIX;
-const highHumidityThreshold = parseFloat(process.env.BIOT_HIGH_HUMIDITY_THRESHOLD);
-const lowHumidityThreshold = parseFloat(process.env.BIOT_LOW_HUMIDITY_THRESHOLD);
-const growthRateModerateThreshold = parseFloat(process.env.BIOT_GROWTH_RATE_MODERATE_ABSOLUTE_THREESHOLD);
-const growthRateHighThreshold = parseFloat(process.env.BIOT_GROWTH_RATE_HIGH_ABSOLUTE_THREESHOLD);
+import config from '../config/index';
 
 export class EmojiHandler {
     static emojiForStatsType(statsType, value) {
-        if (statsType.startsWith(temperaturePrefix)) {
-            if (value >= highTemperatureThreshold) {
+        if (statsType.startsWith(config.biotTemperaturePrefix)) {
+            if (value >= config.biotHighTemperatureThreshold) {
                 return emojiLib.get("fire");
-            } else if (value <= lowTemperatureThreshold) {
+            } else if (value <= config.biotLowTemperatureThreshold) {
                 return emojiLib.get("snowflake");
             }
-        } else if (statsType.startsWith(humidityPrefix)) {
-            if (value >= highHumidityThreshold) {
+        } else if (statsType.startsWith(config.biotHumidityPrefix)) {
+            if (value >= config.biotHighHumidityThreshold) {
                 return emojiLib.get("droplet");
-            } else if (value <= lowHumidityThreshold) {
+            } else if (value <= config.biotLowHumidityThreshold) {
                 return emojiLib.get("cactus");
             }
         }
@@ -31,9 +23,9 @@ export class EmojiHandler {
         const growthRateAbsolute = Math.abs(growthRate);
 
         let numEmojis = 1;
-        if (growthRateAbsolute >= growthRateHighThreshold) {
+        if (growthRateAbsolute >= config.biotGrowthRateHighAbsoluteThreshold) {
             numEmojis = 3;
-        } else if (growthRateAbsolute >= growthRateModerateThreshold) {
+        } else if (growthRateAbsolute >= config.biotGrowthRateModerateAbsoluteThreshold) {
             numEmojis = 2;
         }
 
