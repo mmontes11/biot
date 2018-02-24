@@ -1,29 +1,39 @@
-import emoji from 'node-emoji';
-
-const temperaturePrefix = process.env.BIOT_TEMPERATURE_PREFIX;
-const highTemperatureThreshold = process.env.BIOT_HIGH_TEMPERATURE_THRESHOLD;
-const lowTemperatureThreshold = process.env.BIOT_LOW_TEMPERATURE_THRESHOLD;
-const humidityPrefix = process.env.BIOT_HUMIDITY_PREFIX;
-const highHumidityThreshold = process.env.BIOT_HIGH_HUMIDITY_THRESHOLD;
-const lowHumidityThreshold = process.env.BIOT_LOW_HUMIDITY_THRESHOLD;
+import emojiLib from 'node-emoji';
+import config from '../config/index';
 
 export class EmojiHandler {
-    constructor(statsType) {
-        this.statsType = statsType;
-    }
-    emojiForValue(value) {
-        if (this.statsType.startsWith(temperaturePrefix)) {
-            if (value >= highTemperatureThreshold) {
-                return emoji.get("fire");
-            } else if (value <= lowTemperatureThreshold) {
-                return emoji.get("snowflake");
+    static emojiForStatsType(statsType, value) {
+        if (statsType.startsWith(config.biotTemperaturePrefix)) {
+            if (value >= config.biotHighTemperatureThreshold) {
+                return emojiLib.get("fire");
+            } else if (value <= config.biotLowTemperatureThreshold) {
+                return emojiLib.get("snowflake");
             }
-        } else if (this.statsType.startsWith(humidityPrefix)) {
-            if (value >= highHumidityThreshold) {
-                return emoji.get("droplet");
-            } else if (value <= lowHumidityThreshold) {
-                return emoji.get("cactus");
+        } else if (statsType.startsWith(config.biotHumidityPrefix)) {
+            if (value >= config.biotHighHumidityThreshold) {
+                return emojiLib.get("droplet");
+            } else if (value <= config.biotLowHumidityThreshold) {
+                return emojiLib.get("cactus");
             }
         }
     }
+    static emojisForGrowthRate(growthRate) {
+        const emojiName = (growthRate > 0) ? "chart_with_upwards_trend" : "chart_with_downwards_trend";
+        const emoji = emojiLib.get(emojiName);
+        const growthRateAbsolute = Math.abs(growthRate);
+
+        let numEmojis = 1;
+        if (growthRateAbsolute >= config.biotGrowthRateHighAbsoluteThreshold) {
+            numEmojis = 3;
+        } else if (growthRateAbsolute >= config.biotGrowthRateModerateAbsoluteThreshold) {
+            numEmojis = 2;
+        }
+
+        let emojis = "";
+        for (let i = 0; i < numEmojis; i++) {
+            emojis += `${emoji}`;
+        }
+        return emojis;
+    }
+
 }

@@ -1,9 +1,10 @@
 import IoTClient from "@mmontes11/iot-client";
+import config from '../config/index';
 
 const iotClient = new IoTClient({
-    host: process.env.IOT_SERVER_HOST,
-    username: process.env.IOT_SERVER_BIOT_USERNAME,
-    password: process.env.IOT_SERVER_BIOT_PASSWORD
+    host: config.iotServerHost,
+    username: config.iotServerUsername,
+    password: config.iotServerPassword
 });
 
 export default iotClient;

@@ -1,7 +1,8 @@
 import winston from '../lib/winston';
 import _ from 'underscore';
+import config from '../config/index';
 
-export class Log {
+class Log {
     constructor(debug) {
         this.debug = debug;
     }
@@ -20,8 +21,8 @@ export class Log {
         const from = msg.from.username;
         const chatType = msg.chat.type;
         const chatId = msg.chat.id;
-        const data = msg.data;
-        this.logInfo(`@${from} sent a message in ${chatType} chat ${chatId}: ${data} (message time: ${messageDate.toISOString()})`);
+        const text = msg.text;
+        this.logInfo(`@${from} sent a message in ${chatType} chat ${chatId}: ${text} (message time: ${messageDate.toISOString()})`);
     }
     logCallbackQuery(callbackQuery) {
         const messageDate = new Date(callbackQuery.message.date * 1000);
@@ -31,4 +32,15 @@ export class Log {
         const data = callbackQuery.data;
         this.logInfo(`@${from} replied to a query in ${chatType} chat ${chatId}: ${data} (reply time: ${messageDate.toISOString()})`);
     }
+    logReceivedNotifications(notifications) {
+        this.logInfo("Received notifications:");
+        this.logInfo(Log._pretifyJSON(notifications))
+    }
+    static _pretifyJSON(json) {
+        return JSON.stringify(json, undefined, 2);
+    }
 }
+
+const log = new Log(config.biotDebug);
+
+export default log;
