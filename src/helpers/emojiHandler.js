@@ -1,29 +1,47 @@
-import emoji from 'node-emoji';
+import emojiLib from 'node-emoji';
 
 const temperaturePrefix = process.env.BIOT_TEMPERATURE_PREFIX;
-const highTemperatureThreshold = process.env.BIOT_HIGH_TEMPERATURE_THRESHOLD;
-const lowTemperatureThreshold = process.env.BIOT_LOW_TEMPERATURE_THRESHOLD;
+const highTemperatureThreshold = parseFloat(process.env.BIOT_HIGH_TEMPERATURE_THRESHOLD);
+const lowTemperatureThreshold =parseFloat(process.env.BIOT_LOW_TEMPERATURE_THRESHOLD);
 const humidityPrefix = process.env.BIOT_HUMIDITY_PREFIX;
-const highHumidityThreshold = process.env.BIOT_HIGH_HUMIDITY_THRESHOLD;
-const lowHumidityThreshold = process.env.BIOT_LOW_HUMIDITY_THRESHOLD;
+const highHumidityThreshold = parseFloat(process.env.BIOT_HIGH_HUMIDITY_THRESHOLD);
+const lowHumidityThreshold = parseFloat(process.env.BIOT_LOW_HUMIDITY_THRESHOLD);
+const growthRateModerateThreshold = parseFloat(process.env.BIOT_GROWTH_RATE_MODERATE_ABSOLUTE_THREESHOLD);
+const growthRateHighThreshold = parseFloat(process.env.BIOT_GROWTH_RATE_HIGH_ABSOLUTE_THREESHOLD);
 
 export class EmojiHandler {
-    constructor(statsType) {
-        this.statsType = statsType;
-    }
-    emojiForValue(value) {
-        if (this.statsType.startsWith(temperaturePrefix)) {
+    static emojiForStatsType(statsType, value) {
+        if (statsType.startsWith(temperaturePrefix)) {
             if (value >= highTemperatureThreshold) {
-                return emoji.get("fire");
+                return emojiLib.get("fire");
             } else if (value <= lowTemperatureThreshold) {
-                return emoji.get("snowflake");
+                return emojiLib.get("snowflake");
             }
-        } else if (this.statsType.startsWith(humidityPrefix)) {
+        } else if (statsType.startsWith(humidityPrefix)) {
             if (value >= highHumidityThreshold) {
-                return emoji.get("droplet");
+                return emojiLib.get("droplet");
             } else if (value <= lowHumidityThreshold) {
-                return emoji.get("cactus");
+                return emojiLib.get("cactus");
             }
         }
     }
+    static emojisForGrowthRate(growthRate) {
+        const emojiName = (growthRate > 0) ? "chart_with_upwards_trend" : "chart_with_downwards_trend";
+        const emoji = emojiLib.get(emojiName);
+        const growthRateAbsolute = Math.abs(growthRate);
+
+        let numEmojis = 1;
+        if (growthRateAbsolute >= growthRateHighThreshold) {
+            numEmojis = 3;
+        } else if (growthRateAbsolute >= growthRateModerateThreshold) {
+            numEmojis = 2;
+        }
+
+        let emojis = "";
+        for (let i = 0; i < numEmojis; i++) {
+            emojis += `${emoji}`;
+        }
+        return emojis;
+    }
+
 }

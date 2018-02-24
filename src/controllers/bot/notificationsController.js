@@ -1,6 +1,7 @@
 import Promise from 'bluebird';
 import _ from 'underscore';
 import log from '../../utils/log';
+import { MarkdownBuilder } from '../../helpers/markdownBuilder';
 
 export class NotificationsController {
     constructor(telegramBot) {
@@ -33,7 +34,8 @@ export class NotificationsController {
             const options = {
                 parse_mode: "Markdown"
             };
-            this.bot.sendMessage(notification.chatId, "Hei you!", options)
+            const markdown = MarkdownBuilder.buildNotificationMD(notification);
+            this.bot.sendMessage(notification.chatId, markdown, options)
                 .then((msg) => {
                     log.logMessage(msg);
                     resolve(notification);

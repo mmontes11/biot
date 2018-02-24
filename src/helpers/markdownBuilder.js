@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import { EmojiHandler } from './emojiHandler'
+import { NotificationType } from '../models/notificationType';
 
 export class MarkdownBuilder {
     static buildDefaultMessageMD() {
@@ -26,6 +27,16 @@ export class MarkdownBuilder {
         });
         return markdown;
     }
+    static buildNotificationMD(notification) {
+        switch (notification.type) {
+            case NotificationType.valueChanged: {
+                return MarkdownBuilder._buildValueChangedNotification(notification);
+            }
+            case NotificationType.event: {
+                return MarkdownBuilder._buildEventNotification(notification);
+            }
+        }
+    }
     static _buildThingMD(thing) {
         let markdown = `*thing*: \`${thing.name}\`\n`;
         markdown += `*ip*: ${thing.ip}\n`;
@@ -44,22 +55,49 @@ export class MarkdownBuilder {
         return markdown;
     }
     static _buildStatsMD(statsElement) {
-        let emojiHandler = new EmojiHandler(statsElement.data.type);
-        let markdown = `*type*: \`${statsElement.data.type}\`\n`;
-        markdown += MarkdownBuilder._buildStatsElementMD('avg', statsElement.avg, emojiHandler);
-        markdown += MarkdownBuilder._buildStatsElementMD('max', statsElement.max, emojiHandler);
-        markdown += MarkdownBuilder._buildStatsElementMD('min', statsElement.min, emojiHandler);
+        const statsType = statsElement.data.type;
+        let markdown = `*type*: \`${statsType}\`\n`;
+        markdown += MarkdownBuilder._buildStatsElementMD('avg', statsType, statsElement.avg);
+        markdown += MarkdownBuilder._buildStatsElementMD('max', statsType, statsElement.max);
+        markdown += MarkdownBuilder._buildStatsElementMD('min', statsType, statsElement.min);
         markdown += `*stdDev*: ${statsElement.stdDev}\n`;
         return markdown;
     }
-    static _buildStatsElementMD(statsName, value, emojiHandler) {
+    static _buildStatsElementMD(statsName, statsType, value) {
         let markdown = `*${statsName}*: ${value}`;
-        let emoji = emojiHandler.emojiForValue(value);
+        let emoji = EmojiHandler.emojiForStatsType(statsType, value);
         if (!_.isUndefined(emoji)) {
             markdown += ` ${emoji}\n`;
         } else {
             markdown += "\n";
         }
         return markdown;
+    }
+    static _buildValueChangedNotification(notification) {
+        const observationType = notification.observation.type;
+        const observationValue = notification.observation.value;
+        const thing = notification.thing;
+        const unit = notification.observation.unit.symbol;
+        const growthRate = notification.valueChanges.growthRate * 100;
+        const valueChangedText = MarkdownBuilder._valueChangedText(notification.valueChanges.growthRate);
+        let markdown = `It seems that \`${observationType}\` is ${valueChangedText} in \`${notification.thing}\`:\n`;
+        markdown += `*current value*: ${observationValue}${unit}\n`;
+        markdown += `*growth rate*: ${growthRate}%\n`;
+        return markdown;
+    }
+    static _buildEventNotification(notification) {
+        const thing = notification.thing;
+        const observationType = notification.observation.type;
+        return `Something is happening in \`${thing}\`: \`${observationType}\``;
+    }
+    static _valueChangedText(growthRate) {
+        const emoji = EmojiHandler.emojisForGrowthRate(growthRate);
+        if (growthRate > 0) {
+            return `growing ${emoji}`;
+        } else if (growthRate < 0) {
+            return `decreasing ${emoji}`;
+        } else {
+            return "not changing";
+        }
     }
 }
