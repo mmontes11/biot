@@ -16,6 +16,8 @@ export default {
     biotGrowthRateHighAbsoluteThreshold: parseFloat(process.env.BIOT_GROWTH_RATE_HIGH_ABSOLUTE_THREESHOLD),
     biotDebug: process.env.IOT_DEBUG,
     iotServerHost: process.env.IOT_SERVER_HOST,
-    iotServerUsername: process.env.IOT_SERVER_BIOT_USERNAME,
-    iotServerPassword: process.env.IOT_SERVER_BIOT_PASSWORD
+    iotServerBasicAuthUsername: process.env.IOT_SERVER_BASIC_AUTH_USERNAME,
+    iotServerBasicAuthPassword: process.env.IOT_SERVER_BASIC_AUTH_PASSWORD,
+    iotServerUsername: process.env.IOT_SERVER_USERNAME,
+    iotServerPassword: process.env.IOT_SERVER_PASSWORD
 };
