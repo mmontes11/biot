@@ -4,6 +4,7 @@ export default {
     biotBasicAuthUsers: {
         admin: 'admin'
     },
+    biotJwtSecret: 'Exm4B7sdT8EGoBY3rtDn',
     biotTelegramToken: process.env.BIOT_TELEGRAM_TOKEN,
     biotTelegramWhiteListJson: JSON.parse(process.env.BIOT_USERS_WHITELIST_JSON),
     biotTemperaturePrefix: 'temperature',
