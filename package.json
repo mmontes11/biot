@@ -1,7 +1,7 @@
 {
   "name": "biot",
-  "version": "1.0.1",
-  "description": "Telegram IoT bot that provides info about measurements and events",
+  "version": "1.0.2",
+  "description": "Telegram IoT bot that notifies you about measurements and events in your things.",
   "main": "src/index.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development nodemon  src/index.js --exec babel-node",
@@ -16,10 +16,23 @@
     "url": "git+https://github.com/mmontes11/biot.git"
   },
   "keywords": [
+    "js",
+    "javascript",
+    "es6",
+    "babel",
+    "nodejs",
+    "npm",
+    "express",
+    "winston",
+    "docker",
+    "docker",
+    "docker-compose",
     "telegram",
     "bot",
+    "telegram-bot-api",
     "iot",
-    "nodejs"
+    "internet-of-things",
+    "biot"
   ],
   "author": "Martín Montes <martin11lrx@gmail.com>",
   "license": "MIT",
