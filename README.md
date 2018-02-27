@@ -10,7 +10,7 @@ $ npm start
 ```
 ### Build image
 ```bash
-$ npm run dist
+$ npm run build
 $ docker build -t biot .
 ```
 ### DockerHub
