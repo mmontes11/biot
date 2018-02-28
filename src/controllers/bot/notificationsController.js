@@ -2,6 +2,7 @@ import Promise from 'bluebird';
 import _ from 'underscore';
 import log from '../../utils/log';
 import { MarkdownBuilder } from '../../helpers/markdownBuilder';
+import {NotificationType} from "../../models/notificationType";
 
 export class NotificationsController {
     constructor(telegramBot) {
@@ -34,7 +35,21 @@ export class NotificationsController {
             const options = {
                 parse_mode: "Markdown"
             };
-            const markdown = MarkdownBuilder.buildNotificationMD(notification);
+            let markdown;
+            switch (notification.type) {
+                case NotificationType.event: {
+                    markdown = MarkdownBuilder.buildEventNotificationMD(notification);
+                    break;
+                }
+                case NotificationType.measurement: {
+                    markdown = MarkdownBuilder.buildMeasurementNotificationMD(notification);
+                    break;
+                }
+                case NotificationType.measurementChanged: {
+                    markdown = MarkdownBuilder.buildMeasurementChangedNotificationMD(notification);
+                    break;
+                }
+            }
             this.bot.sendMessage(notification.chatId, markdown, options)
                 .then((msg) => {
                     log.logMessage(msg);

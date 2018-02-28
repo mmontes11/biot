@@ -43,8 +43,8 @@ const sendNotifications = async (req, res, next) => {
 const _isValidNotification = (notification) => {
     const invalidNotificationType = _.isUndefined(notification.type) || !_.contains(supportedNotificationTypes, notification.type);
     const invalidFields = _.isUndefined(notification.chatId) || _.isUndefined(notification.thing) || _.isUndefined(notification.observation);
-    const invalidValueChangedNotification = _.isEqual(notification.type, NotificationType.valueChanged) && _.isUndefined(notification.valueChanges);
-    return !(invalidNotificationType || invalidFields || invalidValueChangedNotification);
+    const invalidMeasurementChanged = _.isEqual(notification.type, NotificationType.measurementChanged) && _.isUndefined(notification.changes);
+    return !(invalidNotificationType || invalidFields || invalidMeasurementChanged);
 };
 
 export default { sendNotifications };

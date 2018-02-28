@@ -1,8 +1,9 @@
 const NotificationType = Object.freeze({
-    valueChanged: "value-changed",
-    event: "event"
+    event: "event",
+    measurement: "measurement",
+    measurementChanged: "measurementChanged"
 });
 
-const supportedNotificationTypes = [ NotificationType.valueChanged, NotificationType.event ];
+const supportedNotificationTypes = [ NotificationType.event, NotificationType.measurement, NotificationType.measurementChanged ];
 
 export { NotificationType, supportedNotificationTypes };

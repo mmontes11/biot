@@ -27,15 +27,32 @@ export class MarkdownBuilder {
         });
         return markdown;
     }
-    static buildNotificationMD(notification) {
-        switch (notification.type) {
-            case NotificationType.valueChanged: {
-                return MarkdownBuilder._buildValueChangedNotification(notification);
-            }
-            case NotificationType.event: {
-                return MarkdownBuilder._buildEventNotification(notification);
-            }
-        }
+    static buildEventNotificationMD(notification) {
+        const thing = notification.thing;
+        const eventType = notification.observation.type;
+        return `Something happened in \`${thing}\`: \`${eventType}\``;
+    }
+    static buildMeasurementNotificationMD(notification) {
+        const thing = notification.thing;
+        const measurementType = notification.observation.type;
+        const value = notification.observation.value;
+        const unit = notification.observation.unit.symbol;
+        let markdown = `New \`${measurementType}\` measurement performed in \`${thing}\`:\n`;
+        markdown += `${value}${unit}\n`;
+        return markdown
+    }
+    static buildMeasurementChangedNotificationMD(notification) {
+        const measurementType = notification.observation.type;
+        const measurementValue = notification.observation.value;
+        const thing = notification.thing;
+        const unit = notification.observation.unit.symbol;
+        const growthRate = notification.changes.growthRate;
+        const growthRatePercentage = growthRate * 100;
+        const changedText = MarkdownBuilder._changedText(growthRate);
+        let markdown = `It seems that \`${measurementType}\` is ${changedText} in \`${thing}\`:\n`;
+        markdown += `*current value*: ${measurementValue}${unit}\n`;
+        markdown += `*growth rate*: ${growthRatePercentage}%\n`;
+        return markdown;
     }
     static _buildThingMD(thing) {
         let markdown = `*thing*: \`${thing.name}\`\n`;
@@ -73,24 +90,7 @@ export class MarkdownBuilder {
         }
         return markdown;
     }
-    static _buildValueChangedNotification(notification) {
-        const observationType = notification.observation.type;
-        const observationValue = notification.observation.value;
-        const thing = notification.thing;
-        const unit = notification.observation.unit.symbol;
-        const growthRate = notification.valueChanges.growthRate * 100;
-        const valueChangedText = MarkdownBuilder._valueChangedText(notification.valueChanges.growthRate);
-        let markdown = `It seems that \`${observationType}\` is ${valueChangedText} in \`${notification.thing}\`:\n`;
-        markdown += `*current value*: ${observationValue}${unit}\n`;
-        markdown += `*growth rate*: ${growthRate}%\n`;
-        return markdown;
-    }
-    static _buildEventNotification(notification) {
-        const thing = notification.thing;
-        const observationType = notification.observation.type;
-        return `Something is happening in \`${thing}\`: \`${observationType}\``;
-    }
-    static _valueChangedText(growthRate) {
+    static _changedText(growthRate) {
         const emoji = EmojiHandler.emojisForGrowthRate(growthRate);
         if (growthRate > 0) {
             return `growing ${emoji}`;
