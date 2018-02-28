@@ -17,9 +17,9 @@ export class ErrorHandler {
     }
     _handleError(err, chatId, notFoundMessage, errorMessage) {
         if (_.isEqual(err.statusCode, httpStatus.NOT_FOUND)) {
-            this.bot.sendMessage(chatId, errorMessages.noStatsAvailable);
+            this.bot.sendMessage(chatId, errorMessages.errorGenericNotFound);
         } else {
-            this.bot.sendMessage(chatId, errorMessages.errorGettingStats);
+            this.bot.sendMessage(chatId, errorMessages.errorGeneric);
         }
     }
 }
