@@ -3,7 +3,7 @@
 [![StackShare](https://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](https://stackshare.io/mmontes11/iot)
 
 Telegram IoT bot that notifies you about measurements and events in your things. 
-It consumes [IoT backend](https://github.com/mmontes11/iot-backend) REST API via [IoT client](https://github.com/mmontes11/iot_client) and provides its own REST API to send notifications.
+It consumes [IoT backend](https://github.com/mmontes11/iot-backend) REST API via [IoT client](https://github.com/mmontes11/iot_client) and provides its own REST API to receive notifications.
 
 ### Run in development
 ```bash
