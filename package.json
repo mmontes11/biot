@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/mmontes11/biot#readme",
   "dependencies": {
-    "@mmontes11/iot-client": "^1.0.1",
+    "@mmontes11/iot-client": "^1.0.2",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "compression": "^1.7.2",
