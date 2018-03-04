@@ -1,15 +1,20 @@
 import _ from 'underscore';
 import { SubscriptionParams } from '../../models/subscriptionParams';
 import { NotificationType, supportedNotificationTypes } from '../../models/notificationType';
-import { CallbackData, CallbackDataType, supportedCallbackDataTypes } from "../../models/callbackData"
+import { CallbackData, CallbackDataType } from "../../models/callbackData";
+import { ErrorHandler } from '../../helpers/errorHandler';
 import commandMessages from '../../utils/commandMessages';
 
 export class SubscriptionsController {
     constructor(telegramBot, iotClient) {
         this.bot = telegramBot;
         this.iotClient = iotClient;
-        this.supportedCallbackDataTypes = [ CallbackDataType.selectNotificationType ];
+        this.supportedCallbackDataTypes = [
+            CallbackDataType.selectNotificationType,
+            CallbackDataType.selectThingForNotifications
+        ];
         this.subscriptionParamsByChat = [];
+        this.errorHandler = new ErrorHandler(telegramBot);
     }
     handleSubscribeCommand(msg) {
         const chatId = msg.chat.id;
@@ -19,7 +24,33 @@ export class SubscriptionsController {
         return _.contains(this.supportedCallbackDataTypes, callbackData.type);
     }
     handleCallbackQuery(callbackQuery, callbackData) {
+        const chatId = callbackQuery.message.chat.id;
+        const subscriptionParams = this._getOrCreateSubscriptionParams(chatId);
+        const answerCallbackQuery = () => this.bot.answerCallbackQuery(callbackQuery.id);
+        const reset = () => {
+            answerCallbackQuery();
+            this._startSubscribing(chatId);
+        };
 
+        switch (callbackData.type) {
+            case CallbackDataType.selectNotificationType: {
+                if (_.isUndefined(subscriptionParams.notificationType)) {
+                    subscriptionParams.setNotificationType(callbackData.data);
+                    this._selectThing(chatId, subscriptionParams, answerCallbackQuery);
+                } else {
+                    reset()
+                }
+                break;
+            }
+            case CallbackDataType.selectThingForNotifications: {
+                if (_.isUndefined(subscriptionParams.thing)) {
+                    subscriptionParams.setThing(subscriptionParams.thing);
+                } else {
+                    reset()
+                }
+                break;
+            }
+        }
     }
     _startSubscribing(chatId) {
         this._deleteSubscriptionParams(chatId);
@@ -42,6 +73,51 @@ export class SubscriptionsController {
             }
         };
         this.bot.sendMessage(chatId, commandMessages.notificationTypeSelectMessage, options)
+    }
+    async _selectThing(chatId, subscriptionParams, answerCallbackQuery) {
+        const getThingsRequestParams = SubscriptionsController._getThingsRequestParams(subscriptionParams);
+        try {
+            const response = await this.iotClient.thingsService.getThings(getThingsRequestParams.supportsMeasurements,
+                                                                            getThingsRequestParams.supportsEvents);
+            const things = _.map(response.body.things, (thing) => {
+                const callbackData = new CallbackData(CallbackDataType.selectThingForNotifications, thing.name);
+                return {
+                    text: thing.name,
+                    callback_data: callbackData.serialize()
+                }
+            });
+            const options = {
+                reply_markup: {
+                    inline_keyboard: [ things ]
+                }
+            };
+            answerCallbackQuery();
+            this.bot.sendMessage(chatId, commandMessages.thingSelectMessage, options);
+        } catch (err) {
+            answerCallbackQuery();
+            this.errorHandler.handleThingsError(err, chatId);
+        }
+    }
+    static _getThingsRequestParams(subscriptionParams) {
+        const supportsMeasurementParams = {
+            supportsMeasurements: true,
+            supportsEvents: false
+        };
+        const supportsEventParams = {
+            supportsMeasurements: false,
+            supportsEvents: true
+        };
+        switch (subscriptionParams.notificationType) {
+            case NotificationType.event: {
+                return supportsEventParams;
+            }
+            case NotificationType.measurement: {
+                return supportsMeasurementParams;
+            }
+            case NotificationType.measurementChanged: {
+                return supportsMeasurementParams;
+            }
+        }
     }
     _deleteSubscriptionParams(chatId) {
         const subscriptionParamsIndex = _.findIndex(this.subscriptionParamsByChat, (subscriptionParams) => {

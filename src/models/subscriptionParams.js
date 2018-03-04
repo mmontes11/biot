@@ -22,7 +22,7 @@ export class SubscriptionParams {
             json['type'] = this.notificationType;
         }
         if (!_.isUndefined(this.thing)) {
-            json['thing'] = this.thing;
+            json['thing'] = this.thing.name;
         }
         if (!_.isUndefined(this.observationType)) {
             json['observationType'] = this.observationType;
