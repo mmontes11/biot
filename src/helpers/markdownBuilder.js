@@ -9,6 +9,9 @@ export class MarkdownBuilder {
         markdown += `Available commands:\n`;
         markdown += `/things - Lists things\n`;
         markdown += `/stats - Provides measurement stats\n`;
+        markdown += `/subscribe - Subscribes this chat to notifications\n`;
+        markdown += `/unsubscribe - Unsubscribes this chat from notifications\n`;
+        markdown += `/mysubscriptions - Lists subscriptions of this chat\n`;
         return markdown;
     }
     static buildThingsListMD(things) {
