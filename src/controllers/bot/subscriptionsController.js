@@ -3,6 +3,7 @@ import { SubscriptionParams } from '../../models/subscriptionParams';
 import { NotificationType, supportedNotificationTypes } from '../../models/notificationType';
 import { CallbackData, CallbackDataType } from "../../models/callbackData";
 import { ErrorHandler } from '../../helpers/errorHandler';
+import { TelegramInlineKeyboardHelper } from '../../helpers/telegramInlineKeyboardHelper';
 import commandMessages from '../../utils/commandMessages';
 
 export class SubscriptionsController {
@@ -64,12 +65,9 @@ export class SubscriptionsController {
                 callback_data: callbackData.serialize()
             }
         });
-        const notificationTypesRows = _.map(notificationTypes, (notificationType) => {
-            return [notificationType];
-        });
         const options = {
             reply_markup: {
-                inline_keyboard: notificationTypesRows
+                inline_keyboard: TelegramInlineKeyboardHelper.rows(notificationTypes)
             }
         };
         this.bot.sendMessage(chatId, commandMessages.notificationTypeSelectMessage, options)
@@ -88,7 +86,7 @@ export class SubscriptionsController {
             });
             const options = {
                 reply_markup: {
-                    inline_keyboard: [ things ]
+                    inline_keyboard: TelegramInlineKeyboardHelper.rows(things)
                 }
             };
             answerCallbackQuery();
