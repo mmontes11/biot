@@ -2,7 +2,8 @@ const CallbackDataType = Object.freeze({
     selectThing: "selectThing",
     selectTimePeriod: "selectTimePeriod",
     selectNotificationType: "selectNotificationType",
-    selectThingForNotifications: "selectThingForNotifications"
+    selectThingForNotifications: "selectThingForNotifications",
+    selectObservationType: "selectObservationType"
 });
 
 class CallbackData {

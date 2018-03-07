@@ -45,7 +45,8 @@ export class SubscriptionsController {
             }
             case CallbackDataType.selectThingForNotifications: {
                 if (_.isUndefined(subscriptionParams.thing)) {
-                    subscriptionParams.setThing(subscriptionParams.thing);
+                    subscriptionParams.setThing(callbackData.data);
+                    this._selectObservationType(chatId, subscriptionParams, answerCallbackQuery);
                 } else {
                     reset()
                 }
@@ -58,7 +59,7 @@ export class SubscriptionsController {
         this._selectNotificationType(chatId);
     }
     _selectNotificationType(chatId) {
-        const notificationTypes = _.map(supportedNotificationTypes, (notificationType) => {
+        const inlineKeyboardButtons = _.map(supportedNotificationTypes, (notificationType) => {
             const callbackData = new CallbackData(CallbackDataType.selectNotificationType, notificationType);
             return {
                 text: notificationType,
@@ -67,7 +68,7 @@ export class SubscriptionsController {
         });
         const options = {
             reply_markup: {
-                inline_keyboard: TelegramInlineKeyboardHelper.rows(notificationTypes)
+                inline_keyboard: TelegramInlineKeyboardHelper.rows(inlineKeyboardButtons)
             }
         };
         this.bot.sendMessage(chatId, commandMessages.notificationTypeSelectMessage, options)
@@ -77,7 +78,7 @@ export class SubscriptionsController {
         try {
             const response = await this.iotClient.thingsService.getThings(getThingsRequestParams.supportsMeasurements,
                                                                             getThingsRequestParams.supportsEvents);
-            const things = _.map(response.body.things, (thing) => {
+            const inlineKeyboardButtons = _.map(response.body.things, (thing) => {
                 const callbackData = new CallbackData(CallbackDataType.selectThingForNotifications, thing.name);
                 return {
                     text: thing.name,
@@ -86,7 +87,7 @@ export class SubscriptionsController {
             });
             const options = {
                 reply_markup: {
-                    inline_keyboard: TelegramInlineKeyboardHelper.rows(things)
+                    inline_keyboard: TelegramInlineKeyboardHelper.rows(inlineKeyboardButtons)
                 }
             };
             answerCallbackQuery();
@@ -95,6 +96,29 @@ export class SubscriptionsController {
             answerCallbackQuery();
             this.errorHandler.handleThingsError(err, chatId);
         }
+    }
+    async _selectObservationType(chatId, subscriptionParams, answerCallbackQuery) {
+        try {
+            const observationTypes = await this._getObservationTypes(subscriptionParams);
+            const inlineKeyboardButtons = _.map(observationTypes, (observationType) => {
+                const callbackData = new CallbackData(CallbackDataType.selectObservationType, observationType);
+                return {
+                    text: observationType,
+                    callback_data: callbackData.serialize()
+                }
+            });
+            const options = {
+                reply_markup: {
+                    inline_keyboard: TelegramInlineKeyboardHelper.rows(inlineKeyboardButtons)
+                }
+            };
+            answerCallbackQuery();
+            this.bot.sendMessage(chatId, commandMessages.observationTypeSelectMessage, options);
+        } catch (err) {
+            answerCallbackQuery();
+            this.errorHandler.handleObservationTypesError(err, chatId);
+        }
+
     }
     static _getThingsRequestParams(subscriptionParams) {
         const supportsMeasurementParams = {
@@ -114,6 +138,29 @@ export class SubscriptionsController {
             }
             case NotificationType.measurementChanged: {
                 return supportsMeasurementParams;
+            }
+        }
+    }
+    async _getObservationTypes(subscriptionParams) {
+        let res;
+        try {
+            res = await this.iotClient.thingService.getThingByName(subscriptionParams.thing);
+        } catch (err) {
+            throw err;
+        }
+        const thing = res.body;
+        const observationTypesForEvents = thing.supportedObservationTypes.event;
+        const observationTypesForMeasurements = thing.supportedObservationTypes.measurement;
+        switch (subscriptionParams.notificationType) {
+            case NotificationType.event: {
+                return observationTypesForEvents;
+            }
+            case NotificationType.measurement: {
+                return observationTypesForMeasurements;
+            }
+            case NotificationType.measurementChanged: {
+                return observationTypesForMeasurements;
+
             }
         }
     }

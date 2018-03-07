@@ -15,6 +15,9 @@ export class ErrorHandler {
     handleStatsError(err, chatId) {
         this._handleError(err, chatId, errorMessages.noStatsAvailable, errorMessages.errorGettingStats)
     }
+    handleObservationTypesError(err, chatId) {
+        this._handleError(err, chatId, errorMessages.noThingsObservationTypes, errorMessages.errorGettingObservationTypes);
+    }
     _handleError(err, chatId, notFoundMessage, errorMessage) {
         if (_.isEqual(err.statusCode, httpStatus.NOT_FOUND)) {
             this.bot.sendMessage(chatId, errorMessages.errorGenericNotFound);
