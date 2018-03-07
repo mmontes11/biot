@@ -4,6 +4,7 @@ import { StatsParams } from '../../models/statsParams';
 import { MarkdownBuilder } from '../../helpers/markdownBuilder';
 import { ErrorHandler } from '../../helpers/errorHandler';
 import { CallbackData, CallbackDataType } from "../../models/callbackData"
+import { TelegramInlineKeyboardHelper } from '../../helpers/telegramInlineKeyboardHelper';
 import commandMessages from '../../utils/commandMessages';
 import errorMessages from '../../utils/errorMessages';
 
@@ -63,7 +64,7 @@ export class StatsController {
     async _selectThings(chatId, statsCriteria, answerCallbackQuery) {
         try {
             const response = await this.iotClient.thingsService.getThings();
-            const things = _.map(response.body.things, (thing) => {
+            const inlineKeyboardButtons = _.map(response.body.things, (thing) => {
                 const callbackData = new CallbackData(CallbackDataType.selectThing, thing.name);
                 return {
                     text: thing.name,
@@ -72,7 +73,7 @@ export class StatsController {
             });
             const options = {
                 reply_markup: {
-                    inline_keyboard: [ things ]
+                    inline_keyboard: TelegramInlineKeyboardHelper.rows(inlineKeyboardButtons)
                 }
             };
             if (!_.isUndefined(answerCallbackQuery)) {
@@ -89,7 +90,7 @@ export class StatsController {
     async _selectTimePeriod(chatId, answerCallbackQuery) {
         try {
             const response = await this.iotClient.timePeriodsService.getSupportedTimePeriods();
-            const timePeriods = _.map(response.body.timePeriods, (timePeriod) => {
+            const inlineKeyboardButtons = _.map(response.body.timePeriods, (timePeriod) => {
                 const callbackData = new CallbackData(CallbackDataType.selectTimePeriod, timePeriod);
                 return {
                     text: timePeriod,
@@ -98,7 +99,7 @@ export class StatsController {
             });
             const options = {
                 reply_markup: {
-                    inline_keyboard: [ timePeriods ]
+                    inline_keyboard: TelegramInlineKeyboardHelper.rows(inlineKeyboardButtons)
                 }
             };
             answerCallbackQuery();
