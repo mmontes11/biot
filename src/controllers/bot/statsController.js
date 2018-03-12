@@ -1,11 +1,10 @@
 import _ from 'underscore';
-import httpStatus from 'http-status';
 import { StatsParams } from '../../models/statsParams';
 import { MarkdownBuilder } from '../../helpers/markdownBuilder';
 import { ErrorHandler } from '../../helpers/errorHandler';
 import { CallbackData, CallbackDataType } from "../../models/callbackData"
 import { TelegramInlineKeyboardHelper } from '../../helpers/telegramInlineKeyboardHelper';
-import commandMessages from '../../utils/commandMessages';
+import messages from '../../utils/messages';
 import errorMessages from '../../utils/errorMessages';
 
 export class StatsController {
@@ -79,7 +78,7 @@ export class StatsController {
             if (!_.isUndefined(answerCallbackQuery)) {
                 answerCallbackQuery();
             }
-            this.bot.sendMessage(chatId, commandMessages.thingSelectMessage, options);
+            this.bot.sendMessage(chatId, messages.thingSelectMessage, options);
         } catch (err) {
             if (!_.isUndefined(answerCallbackQuery)) {
                 answerCallbackQuery();
@@ -103,7 +102,7 @@ export class StatsController {
                 }
             };
             answerCallbackQuery();
-            this.bot.sendMessage(chatId, commandMessages.timePeriodSelectMessage, options);
+            this.bot.sendMessage(chatId, messages.timePeriodSelectMessage, options);
         } catch (err) {
             answerCallbackQuery();
             this.errorHandler.handleTimePeriodsError(err, chatId);

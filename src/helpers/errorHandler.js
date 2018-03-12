@@ -16,13 +16,18 @@ export class ErrorHandler {
         this._handleError(err, chatId, errorMessages.noStatsAvailable, errorMessages.errorGettingStats)
     }
     handleObservationTypesError(err, chatId) {
-        this._handleError(err, chatId, errorMessages.noThingsObservationTypes, errorMessages.errorGettingObservationTypes);
+        this._handleError(err, chatId, errorMessages.noObservationTypesAvailable, errorMessages.errorGettingObservationTypes);
+    }
+    handleCreateSubscriptionError(err, chatId) {
+        this._handleError(err, chatId, undefined, errorMessages.errorSubscribing)
     }
     _handleError(err, chatId, notFoundMessage, errorMessage) {
         if (_.isEqual(err.statusCode, httpStatus.NOT_FOUND)) {
-            this.bot.sendMessage(chatId, errorMessages.errorGenericNotFound);
+            const notFoundError = _.isUndefined(notFoundMessage) ? errorMessages.errorGenericNotFound : notFoundMessage;
+            this.bot.sendMessage(chatId, notFoundError);
         } else {
-            this.bot.sendMessage(chatId, errorMessages.errorGeneric);
+            const error = _.isUndefined(errorMessage) ? errorMessages.errorGeneric : errorMessage;
+            this.bot.sendMessage(chatId, error);
         }
     }
 }

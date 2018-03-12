@@ -2,9 +2,10 @@ import _ from 'underscore';
 import { SubscriptionParams } from '../../models/subscriptionParams';
 import { NotificationType, supportedNotificationTypes } from '../../models/notificationType';
 import { CallbackData, CallbackDataType } from "../../models/callbackData";
+import { ResponseHandler} from "../../helpers/responseHandler";
 import { ErrorHandler } from '../../helpers/errorHandler';
 import { TelegramInlineKeyboardHelper } from '../../helpers/telegramInlineKeyboardHelper';
-import commandMessages from '../../utils/commandMessages';
+import messages from '../../utils/messages';
 
 export class SubscriptionsController {
     constructor(telegramBot, iotClient) {
@@ -12,9 +13,11 @@ export class SubscriptionsController {
         this.iotClient = iotClient;
         this.supportedCallbackDataTypes = [
             CallbackDataType.selectNotificationType,
-            CallbackDataType.selectThingForNotifications
+            CallbackDataType.selectThingForNotifications,
+            CallbackDataType.selectObservationType
         ];
         this.subscriptionParamsByChat = [];
+        this.responseHandler = new ResponseHandler(telegramBot);
         this.errorHandler = new ErrorHandler(telegramBot);
     }
     handleSubscribeCommand(msg) {
@@ -52,6 +55,15 @@ export class SubscriptionsController {
                 }
                 break;
             }
+            case CallbackDataType.selectObservationType: {
+                if (_.isUndefined(subscriptionParams.observationType)) {
+                    subscriptionParams.setObservationType(callbackData.data);
+                    this._createSubscription(chatId, subscriptionParams, answerCallbackQuery);
+                } else {
+                    reset();
+                }
+                break;
+            }
         }
     }
     _startSubscribing(chatId) {
@@ -71,7 +83,7 @@ export class SubscriptionsController {
                 inline_keyboard: TelegramInlineKeyboardHelper.rows(inlineKeyboardButtons)
             }
         };
-        this.bot.sendMessage(chatId, commandMessages.notificationTypeSelectMessage, options)
+        this.bot.sendMessage(chatId, messages.notificationTypeSelectMessage, options)
     }
     async _selectThing(chatId, subscriptionParams, answerCallbackQuery) {
         const getThingsRequestParams = SubscriptionsController._getThingsRequestParams(subscriptionParams);
@@ -91,7 +103,7 @@ export class SubscriptionsController {
                 }
             };
             answerCallbackQuery();
-            this.bot.sendMessage(chatId, commandMessages.thingSelectMessage, options);
+            this.bot.sendMessage(chatId, messages.thingSelectMessage, options);
         } catch (err) {
             answerCallbackQuery();
             this.errorHandler.handleThingsError(err, chatId);
@@ -113,12 +125,22 @@ export class SubscriptionsController {
                 }
             };
             answerCallbackQuery();
-            this.bot.sendMessage(chatId, commandMessages.observationTypeSelectMessage, options);
+            this.bot.sendMessage(chatId, messages.observationTypeSelectMessage, options);
         } catch (err) {
             answerCallbackQuery();
             this.errorHandler.handleObservationTypesError(err, chatId);
         }
 
+    }
+    async _createSubscription(chatId, subscriptionParams, answerCallbackQuery) {
+        try {
+            const subscription = subscriptionParams.toJSON();
+            const res = await this.iotClient.subscriptionService.subscribe(subscription);
+            this.responseHandler.handleCreateSubscriptionResponse(res, chatId);
+        } catch (err) {
+            answerCallbackQuery();
+            this.errorHandler.handleCreateSubscriptionError(err, chatId);
+        }
     }
     static _getThingsRequestParams(subscriptionParams) {
         const supportsMeasurementParams = {

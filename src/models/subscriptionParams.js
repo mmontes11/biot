@@ -14,19 +14,11 @@ export class SubscriptionParams {
         this.observationType = observationType;
     }
     toJSON() {
-        const json = {};
-        if (!_.isUndefined(this.chatId)) {
-            json['chatId'] = this.chatId;
-        }
-        if (!_.isUndefined(this.notificationType)) {
-            json['type'] = this.notificationType;
-        }
-        if (!_.isUndefined(this.thing)) {
-            json['thing'] = this.thing.name;
-        }
-        if (!_.isUndefined(this.observationType)) {
-            json['observationType'] = this.observationType;
-        }
-        return json;
+        return {
+            chatId: this.chatId,
+            type: this.notificationType,
+            thing: this.thing,
+            observationType: this.observationType
+        };
     }
 }
