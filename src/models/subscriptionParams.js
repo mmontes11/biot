@@ -16,7 +16,7 @@ export class SubscriptionParams {
     toJSON() {
         return {
             chatId: this.chatId,
-            type: this.notificationType,
+            notificationType: this.notificationType,
             thing: this.thing,
             observationType: this.observationType
         };
