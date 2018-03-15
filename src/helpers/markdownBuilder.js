@@ -65,6 +65,16 @@ export class MarkdownBuilder {
         });
         return markdown;
     }
+    static buildSubscriptionSuccessMD(subscription) {
+        let markdown = "You are already subscribed to:\n\n";
+        markdown += `${MarkdownBuilder._buildSubscriptionMD(subscription)}`;
+        return markdown
+    }
+    static buildAlreadySubscribedMD(subscription) {
+        let markdown = "Success! You will now receive notifications from:\n\n";
+        markdown += `${MarkdownBuilder._buildSubscriptionMD(subscription)}`;
+        return markdown;
+    }
     static _buildThingMD(thing) {
         let markdown = `*thing*: \`${thing.name}\`\n`;
         markdown += `*ip*: ${thing.ip}\n`;
@@ -112,9 +122,9 @@ export class MarkdownBuilder {
         }
     }
     static _buildSubscriptionMD(subscription) {
-        let markdown = `*notificationType*: ${subscription.notificationType}\n`;
-        markdown += `*thing*: \`${subscription.thing}\`\n`;
+        let markdown = `*thing*: \`${subscription.thing}\`\n`;
         markdown += `*observationType*: _${subscription.observationType}_\n`;
+        markdown += `*notificationType*: ${subscription.notificationType}\n`;
         return markdown;
     }
 }

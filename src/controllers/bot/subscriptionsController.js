@@ -155,7 +155,8 @@ export class SubscriptionsController {
         try {
             const subscription = subscriptionParams.toJSON();
             const res = await this.iotClient.subscriptionService.subscribe(subscription);
-            this.responseHandler.handleCreateSubscriptionResponse(res, chatId);
+            answerCallbackQuery();
+            this.responseHandler.handleCreateSubscriptionResponse(res, chatId, subscription);
         } catch (err) {
             answerCallbackQuery();
             this.errorHandler.handleCreateSubscriptionError(err, chatId);
