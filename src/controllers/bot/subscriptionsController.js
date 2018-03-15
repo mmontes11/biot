@@ -164,10 +164,8 @@ export class SubscriptionsController {
     static _getThingsRequestParams(subscriptionParams) {
         const supportsMeasurementParams = {
             supportsMeasurements: true,
-            supportsEvents: false
         };
         const supportsEventParams = {
-            supportsMeasurements: false,
             supportsEvents: true
         };
         switch (subscriptionParams.notificationType) {
