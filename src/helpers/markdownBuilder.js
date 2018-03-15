@@ -33,7 +33,9 @@ export class MarkdownBuilder {
     static buildEventNotificationMD(notification) {
         const thing = notification.thing;
         const eventType = notification.observation.type;
-        return `Something happened in \`${thing}\`: _${eventType}_`;
+        let markdown = `Something happened in \`${thing}\`:\n`;
+        markdown += `_${eventType}_\n`;
+        return markdown;
     }
     static buildMeasurementNotificationMD(notification) {
         const thing = notification.thing;
