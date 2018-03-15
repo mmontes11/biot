@@ -76,18 +76,18 @@ export class SubscriptionsController {
         this._selectNotificationType(chatId);
     }
     async _startMySubscriptions(chatId) {
-        let res;
         try {
-            res = await this.iotClient.subscriptionsService.getSubscriptionsByChat(chatId);
+            const res = await this.iotClient.subscriptionsService.getSubscriptionsByChat(chatId);
+            const subscriptions = res.body.subscriptions;
+            const markdown = MarkdownBuilder.buildSubscriptionsMD(subscriptions);
+            const options = {
+                parse_mode: "Markdown"
+            };
+            this.bot.sendMessage(chatId, markdown, options);
         } catch (err) {
-            throw err;
+            this.errorHandler.handleGetSubscriptionsError(err, chatId);
         }
-        const subscriptions = res.body.subscriptions;
-        const markdown = MarkdownBuilder.buildSubscriptionsMD(subscriptions);
-        const options = {
-            parse_mode: "Markdown"
-        };
-        this.bot.sendMessage(chatId, markdown, options);
+
     }
     _selectNotificationType(chatId) {
         const inlineKeyboardButtons = _.map(supportedNotificationTypes, (notificationType) => {

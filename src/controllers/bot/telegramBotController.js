@@ -23,35 +23,31 @@ class TelegramBotController {
         log.logInfo("Telegram bot started polling");
 
         this.bot.on('message', (msg) => {
-            try {
-                log.logMessage(msg);
-                if (!this.authController.isAuthorized(msg)) {
-                    this.authController.sendNotAuthorizedMessage(msg);
-                    return;
-                }
-                let handledMessage = false;
-                const text = msg.text;
-                if (/\/things/.test(text)) {
-                    this.thingsController.handleThingsCommand(msg);
-                    handledMessage = true;
-                }
-                if (/\/stats/.test(text)) {
-                    this.statsController.handleStatsCommand(msg);
-                    handledMessage = true;
-                }
-                if (/\/subscribe/.test(text)) {
-                    this.subscriptionsController.handleSubscribeCommand(msg);
-                    handledMessage = true;
-                }
-                if (/\/mysubscriptions/.test(text)) {
-                    this.subscriptionsController.handleMySubscriptionsCommand(msg);
-                    handledMessage = true;
-                }
-                if (!handledMessage) {
-                    this.defaultMessageController.sendDefaultMessage(msg);
-                }
-            } catch (err) {
-                log.logError(err);
+            log.logMessage(msg);
+            if (!this.authController.isAuthorized(msg)) {
+                this.authController.sendNotAuthorizedMessage(msg);
+                return;
+            }
+            let handledMessage = false;
+            const text = msg.text;
+            if (/\/things/.test(text)) {
+                this.thingsController.handleThingsCommand(msg);
+                handledMessage = true;
+            }
+            if (/\/stats/.test(text)) {
+                this.statsController.handleStatsCommand(msg);
+                handledMessage = true;
+            }
+            if (/\/subscribe/.test(text)) {
+                this.subscriptionsController.handleSubscribeCommand(msg);
+                handledMessage = true;
+            }
+            if (/\/mysubscriptions/.test(text)) {
+                this.subscriptionsController.handleMySubscriptionsCommand(msg);
+                handledMessage = true;
+            }
+            if (!handledMessage) {
+                this.defaultMessageController.sendDefaultMessage(msg);
             }
         });
 

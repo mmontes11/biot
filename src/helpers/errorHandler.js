@@ -21,6 +21,9 @@ export class ErrorHandler {
     handleCreateSubscriptionError(err, chatId) {
         this._handleError(err, chatId, undefined, errorMessages.errorSubscribing)
     }
+    handleGetSubscriptionsError(err, chatId) {
+        this._handleError(err, chatId, errorMessages.noSubscriptions, errorMessages.errorGettingSubscriptions);
+    }
     _handleError(err, chatId, notFoundMessage, errorMessage) {
         if (_.isEqual(err.statusCode, httpStatus.NOT_FOUND)) {
             const notFoundError = _.isUndefined(notFoundMessage) ? errorMessages.errorGenericNotFound : notFoundMessage;
