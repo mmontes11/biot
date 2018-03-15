@@ -6,6 +6,7 @@ import { ResponseHandler} from "../../helpers/responseHandler";
 import { ErrorHandler } from '../../helpers/errorHandler';
 import { TelegramInlineKeyboardHelper } from '../../helpers/telegramInlineKeyboardHelper';
 import messages from '../../utils/messages';
+import {MarkdownBuilder} from "../../helpers/markdownBuilder";
 
 export class SubscriptionsController {
     constructor(telegramBot, iotClient) {
@@ -22,7 +23,11 @@ export class SubscriptionsController {
     }
     handleSubscribeCommand(msg) {
         const chatId = msg.chat.id;
-        this._startSubscribing(chatId);
+        this._startSubscribe(chatId);
+    }
+    handleMySubscriptionsCommand(msg) {
+        const chatId = msg.chat.id;
+        this._startMySubscriptions(chatId);
     }
     canHandleCallbackData(callbackData) {
         return _.contains(this.supportedCallbackDataTypes, callbackData.type);
@@ -33,7 +38,7 @@ export class SubscriptionsController {
         const answerCallbackQuery = () => this.bot.answerCallbackQuery(callbackQuery.id);
         const reset = () => {
             answerCallbackQuery();
-            this._startSubscribing(chatId);
+            this._startSubscribe(chatId);
         };
 
         switch (callbackData.type) {
@@ -66,9 +71,23 @@ export class SubscriptionsController {
             }
         }
     }
-    _startSubscribing(chatId) {
+    _startSubscribe(chatId) {
         this._deleteSubscriptionParams(chatId);
         this._selectNotificationType(chatId);
+    }
+    async _startMySubscriptions(chatId) {
+        let res;
+        try {
+            res = await this.iotClient.subscriptionsService.getSubscriptionsByChat(chatId);
+        } catch (err) {
+            throw err;
+        }
+        const subscriptions = res.body.subscriptions;
+        const markdown = MarkdownBuilder.buildSubscriptionsMD(subscriptions);
+        const options = {
+            parse_mode: "Markdown"
+        };
+        this.bot.sendMessage(chatId, markdown, options);
     }
     _selectNotificationType(chatId) {
         const inlineKeyboardButtons = _.map(supportedNotificationTypes, (notificationType) => {

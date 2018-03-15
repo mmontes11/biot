@@ -43,6 +43,10 @@ class TelegramBotController {
                     this.subscriptionsController.handleSubscribeCommand(msg);
                     handledMessage = true;
                 }
+                if (/\/mysubscriptions/.test(text)) {
+                    this.subscriptionsController.handleMySubscriptionsCommand(msg);
+                    handledMessage = true;
+                }
                 if (!handledMessage) {
                     this.defaultMessageController.sendDefaultMessage(msg);
                 }

@@ -57,6 +57,14 @@ export class MarkdownBuilder {
         markdown += `*growth rate*: ${growthRatePercentage}%\n`;
         return markdown;
     }
+    static buildSubscriptionsMD(subscriptions) {
+        let markdown = "";
+        _.forEach(subscriptions, (subscription) => {
+            markdown += MarkdownBuilder._buildSubscriptionMD(subscription);
+            markdown += '\n';
+        });
+        return markdown;
+    }
     static _buildThingMD(thing) {
         let markdown = `*thing*: \`${thing.name}\`\n`;
         markdown += `*ip*: ${thing.ip}\n`;
@@ -102,5 +110,11 @@ export class MarkdownBuilder {
         } else {
             return "not changing";
         }
+    }
+    static _buildSubscriptionMD(subscription) {
+        let markdown = `*notificationType*: ${subscription.notificationType}\n`;
+        markdown += `*thing*: \`${subscription.thing}\`\n`;
+        markdown += `*observationType*: \`${subscription.observationType}\`\n`;
+        return markdown;
     }
 }
