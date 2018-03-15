@@ -33,14 +33,14 @@ export class MarkdownBuilder {
     static buildEventNotificationMD(notification) {
         const thing = notification.thing;
         const eventType = notification.observation.type;
-        return `Something happened in \`${thing}\`: \`${eventType}\``;
+        return `Something happened in \`${thing}\`: _${eventType}_`;
     }
     static buildMeasurementNotificationMD(notification) {
         const thing = notification.thing;
         const measurementType = notification.observation.type;
         const value = notification.observation.value;
         const unit = notification.observation.unit.symbol;
-        let markdown = `New \`${measurementType}\` measurement performed in \`${thing}\`:\n`;
+        let markdown = `New _${measurementType}_ measurement performed in \`${thing}\`:\n`;
         markdown += `${value}${unit}\n`;
         return markdown
     }
@@ -52,7 +52,7 @@ export class MarkdownBuilder {
         const growthRate = notification.changes.growthRate;
         const growthRatePercentage = growthRate * 100;
         const changedText = MarkdownBuilder._changedText(growthRate);
-        let markdown = `It seems that \`${measurementType}\` is ${changedText} in \`${thing}\`:\n`;
+        let markdown = `It seems that _${measurementType}_ is ${changedText} in \`${thing}\`:\n`;
         markdown += `*current value*: ${measurementValue}${unit}\n`;
         markdown += `*growth rate*: ${growthRatePercentage}%\n`;
         return markdown;
@@ -74,17 +74,17 @@ export class MarkdownBuilder {
         const events = thing.supportedObservationTypes.event;
         if (!_.isEmpty(measurements)) {
             markdown += "*measurements*: ";
-            markdown += `${measurements.join(', ')} \n`;
+            markdown += `${measurements.map(m => `_${m}_`).join(', ')} \n`;
         }
         if (!_.isEmpty(events)) {
             markdown += "*events*: ";
-            markdown += `${events.join(', ')} \n`;
+            markdown += `${events.map(e => `_${e}_`).join(', ')} \n`;
         }
         return markdown;
     }
     static _buildStatsMD(statsElement) {
         const statsType = statsElement.data.type;
-        let markdown = `*type*: \`${statsType}\`\n`;
+        let markdown = `*type*: _${statsType}_\n`;
         markdown += MarkdownBuilder._buildStatsElementMD('avg', statsType, statsElement.avg);
         markdown += MarkdownBuilder._buildStatsElementMD('max', statsType, statsElement.max);
         markdown += MarkdownBuilder._buildStatsElementMD('min', statsType, statsElement.min);
@@ -114,7 +114,7 @@ export class MarkdownBuilder {
     static _buildSubscriptionMD(subscription) {
         let markdown = `*notificationType*: ${subscription.notificationType}\n`;
         markdown += `*thing*: \`${subscription.thing}\`\n`;
-        markdown += `*observationType*: \`${subscription.observationType}\`\n`;
+        markdown += `*observationType*: _${subscription.observationType}_\n`;
         return markdown;
     }
 }
