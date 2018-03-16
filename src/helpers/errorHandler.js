@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import httpStatus from 'http-status';
 import errorMessages from '../utils/errorMessages'
+import log from '../utils/log';
 
 export class ErrorHandler {
     constructor(telegramBot) {
@@ -25,6 +26,7 @@ export class ErrorHandler {
         this._handleError(err, chatId, errorMessages.noSubscriptions, errorMessages.errorGettingSubscriptions);
     }
     _handleError(err, chatId, notFoundMessage, errorMessage) {
+        log.logError(err);
         if (_.isEqual(err.statusCode, httpStatus.NOT_FOUND)) {
             const notFoundError = _.isUndefined(notFoundMessage) ? errorMessages.errorGenericNotFound : notFoundMessage;
             this.bot.sendMessage(chatId, notFoundError);
