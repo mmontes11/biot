@@ -22,6 +22,9 @@ export class ErrorHandler {
     handleCreateSubscriptionError(err, chatId) {
         this._handleError(err, chatId, undefined, errorMessages.errorSubscribing)
     }
+    handleDeleteSubscriptionError(err, chatId) {
+        this._handleError(err, chatId, errorMessages.deleteSubscriptionNotFound, errorMessages.errorDeleteSubscription);
+    }
     handleGetSubscriptionsError(err, chatId) {
         this._handleError(err, chatId, errorMessages.noSubscriptions, errorMessages.errorGettingSubscriptions);
     }

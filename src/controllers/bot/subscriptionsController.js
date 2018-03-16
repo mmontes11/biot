@@ -12,18 +12,29 @@ export class SubscriptionsController {
     constructor(telegramBot, iotClient) {
         this.bot = telegramBot;
         this.iotClient = iotClient;
-        this.supportedCallbackDataTypes = [
+        this.subscribeCallbackDataTypes = [
             CallbackDataType.selectNotificationType,
             CallbackDataType.selectThingForNotifications,
             CallbackDataType.selectObservationType
         ];
-        this.subscriptionParamsByChat = [];
+        this.unsubscribeCallbackDataTypes = [
+            CallbackDataType.selectSubscription
+        ];
+        this.supportedCallbackDataTypes = [
+            ...this.subscribeCallbackDataTypes,
+            ...this.unsubscribeCallbackDataTypes
+        ];
+        this.subscribeParamsByChat = [];
         this.responseHandler = new ResponseHandler(telegramBot);
         this.errorHandler = new ErrorHandler(telegramBot);
     }
     handleSubscribeCommand(msg) {
         const chatId = msg.chat.id;
         this._startSubscribe(chatId);
+    }
+    handleUnsubscribeCommand(msg) {
+        const chatId = msg.chat.id;
+        this._startUnsubscribe(chatId);
     }
     handleMySubscriptionsCommand(msg) {
         const chatId = msg.chat.id;
@@ -33,6 +44,52 @@ export class SubscriptionsController {
         return _.contains(this.supportedCallbackDataTypes, callbackData.type);
     }
     handleCallbackQuery(callbackQuery, callbackData) {
+       if (_.contains(this.subscribeCallbackDataTypes, callbackData.type)) {
+           this._handleSubscribeCallbackQuery(callbackQuery, callbackData);
+       } else if (_.contains(this.unsubscribeCallbackDataTypes, callbackData.type)) {
+           this._handleUnsubscribeCallbackQuery(callbackQuery, callbackData);
+       }
+    }
+    _startSubscribe(chatId) {
+        this._deleteSubscriptionParams(chatId);
+        this._selectNotificationType(chatId);
+    }
+    async _startUnsubscribe(chatId) {
+        try {
+            const res = await this.iotClient.subscriptionsService.getSubscriptionsByChat(chatId);
+            const subscriptions = res.body.subscriptions;
+            const inlineKeyboardButtons = _.map(subscriptions, (subscription) => {
+                const callbackData = new CallbackData(CallbackDataType.selectSubscription, subscription._id);
+                return {
+                    text: `[ ${subscription.notificationType} | ${subscription.thing} | ${subscription.observationType} ]`,
+                    callback_data: callbackData.serialize()
+                }
+            });
+            const options = {
+                reply_markup: {
+                    inline_keyboard: TelegramInlineKeyboardHelper.rows(inlineKeyboardButtons)
+                }
+            };
+            this.bot.sendMessage(chatId, messages.subscriptionSelectMessage, options)
+        } catch (err) {
+            this.errorHandler.handleGetSubscriptionsError(err, chatId);
+        }
+    }
+    async _startMySubscriptions(chatId) {
+        try {
+            const res = await this.iotClient.subscriptionsService.getSubscriptionsByChat(chatId);
+            const subscriptions = res.body.subscriptions;
+            const markdown = MarkdownBuilder.buildSubscriptionsMD(subscriptions);
+            const options = {
+                parse_mode: "Markdown"
+            };
+            this.bot.sendMessage(chatId, markdown, options);
+        } catch (err) {
+            this.errorHandler.handleGetSubscriptionsError(err, chatId);
+        }
+
+    }
+    _handleSubscribeCallbackQuery(callbackQuery, callbackData) {
         const chatId = callbackQuery.message.chat.id;
         const subscriptionParams = this._getOrCreateSubscriptionParams(chatId);
         const answerCallbackQuery = () => this.bot.answerCallbackQuery(callbackQuery.id);
@@ -40,7 +97,6 @@ export class SubscriptionsController {
             answerCallbackQuery();
             this._startSubscribe(chatId);
         };
-
         switch (callbackData.type) {
             case CallbackDataType.selectNotificationType: {
                 if (_.isUndefined(subscriptionParams.notificationType)) {
@@ -71,23 +127,15 @@ export class SubscriptionsController {
             }
         }
     }
-    _startSubscribe(chatId) {
-        this._deleteSubscriptionParams(chatId);
-        this._selectNotificationType(chatId);
-    }
-    async _startMySubscriptions(chatId) {
-        try {
-            const res = await this.iotClient.subscriptionsService.getSubscriptionsByChat(chatId);
-            const subscriptions = res.body.subscriptions;
-            const markdown = MarkdownBuilder.buildSubscriptionsMD(subscriptions);
-            const options = {
-                parse_mode: "Markdown"
-            };
-            this.bot.sendMessage(chatId, markdown, options);
-        } catch (err) {
-            this.errorHandler.handleGetSubscriptionsError(err, chatId);
+    _handleUnsubscribeCallbackQuery(callbackQuery, callbackData) {
+        const chatId = callbackQuery.message.chat.id;
+        const answerCallbackQuery = () => this.bot.answerCallbackQuery(callbackQuery.id);
+        const reset = () => {
+            answerCallbackQuery();
+        };
+        if (callbackData.type === CallbackDataType.selectSubscription) {
+            this._deleteSubscription(chatId, callbackData.data, answerCallbackQuery);
         }
-
     }
     _selectNotificationType(chatId) {
         const inlineKeyboardButtons = _.map(supportedNotificationTypes, (notificationType) => {
@@ -149,7 +197,6 @@ export class SubscriptionsController {
             answerCallbackQuery();
             this.errorHandler.handleObservationTypesError(err, chatId);
         }
-
     }
     async _createSubscription(chatId, subscriptionParams, answerCallbackQuery) {
         try {
@@ -160,6 +207,16 @@ export class SubscriptionsController {
         } catch (err) {
             answerCallbackQuery();
             this.errorHandler.handleCreateSubscriptionError(err, chatId);
+        }
+    }
+    async _deleteSubscription(chatId, subscriptionId, answerCallbackQuery) {
+        try {
+            await this.iotClient.subscriptionService.unSubscribe(subscriptionId);
+            answerCallbackQuery();
+            this.bot.sendMessage(chatId, messages.subscriptionDeletedMessage);
+        } catch (err) {
+            answerCallbackQuery();
+            this.errorHandler.handleDeleteSubscriptionError(err, chatId);
         }
     }
     static _getThingsRequestParams(subscriptionParams) {
@@ -205,20 +262,20 @@ export class SubscriptionsController {
         }
     }
     _deleteSubscriptionParams(chatId) {
-        const subscriptionParamsIndex = _.findIndex(this.subscriptionParamsByChat, (subscriptionParams) => {
+        const subscriptionParamsIndex = _.findIndex(this.subscribeParamsByChat, (subscriptionParams) => {
             return subscriptionParams.chatId = chatId;
         });
         if (subscriptionParamsIndex !== -1) {
-            this.subscriptionParamsByChat.splice(subscriptionParamsIndex, 1);
+            this.subscribeParamsByChat.splice(subscriptionParamsIndex, 1);
         }
     }
     _getOrCreateSubscriptionParams(chatId) {
-        let subscriptionParams = _.find(this.subscriptionParamsByChat, (subscriptionParams) => {
+        let subscriptionParams = _.find(this.subscribeParamsByChat, (subscriptionParams) => {
             return subscriptionParams.chatId = chatId;
         });
         if (_.isUndefined(subscriptionParams)) {
             subscriptionParams = new SubscriptionParams(chatId);
-            this.subscriptionParamsByChat.push(subscriptionParams);
+            this.subscribeParamsByChat.push(subscriptionParams);
             return subscriptionParams;
         } else {
             return subscriptionParams;

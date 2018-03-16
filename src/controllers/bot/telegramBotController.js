@@ -42,6 +42,10 @@ class TelegramBotController {
                 this.subscriptionsController.handleSubscribeCommand(msg);
                 handledMessage = true;
             }
+            if (/\/unsubscribe/.test(text)) {
+                this.subscriptionsController.handleUnsubscribeCommand(msg);
+                handledMessage = true;
+            }
             if (/\/mysubscriptions/.test(text)) {
                 this.subscriptionsController.handleMySubscriptionsCommand(msg);
                 handledMessage = true;
