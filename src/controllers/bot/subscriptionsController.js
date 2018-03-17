@@ -61,7 +61,7 @@ export class SubscriptionsController {
             const inlineKeyboardButtons = _.map(subscriptions, (subscription) => {
                 const callbackData = new CallbackData(CallbackDataType.selectSubscription, subscription._id);
                 return {
-                    text: `[ ${subscription.notificationType} | ${subscription.thing} | ${subscription.observationType} ]`,
+                    text: `${subscription.notificationType} | ${subscription.thing} | ${subscription.observationType}`,
                     callback_data: callbackData.serialize()
                 }
             });
