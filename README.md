@@ -20,7 +20,7 @@ $ docker build -t biot .
 
 Image available on [Docker Hub](https://hub.docker.com/r/mmontes11/biot/)
 
-### Run image
+### Run in production
 
 See [docker-compose](https://docs.docker.com/compose/) set up on [iot](https://github.com/mmontes11/iot)
 
