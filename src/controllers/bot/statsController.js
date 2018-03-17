@@ -1,25 +1,26 @@
 import _ from 'underscore';
-import httpStatus from 'http-status';
 import { StatsParams } from '../../models/statsParams';
 import { MarkdownBuilder } from '../../helpers/markdownBuilder';
 import { ErrorHandler } from '../../helpers/errorHandler';
-import { CallbackData, CallbackDataType, supportedCallbackDataTypes } from "../../models/callbackData"
-import commandMessages from '../../utils/commandMessages';
+import { CallbackData, CallbackDataType } from "../../models/callbackData"
+import { TelegramInlineKeyboardHelper } from '../../helpers/telegramInlineKeyboardHelper';
+import messages from '../../utils/messages';
 import errorMessages from '../../utils/errorMessages';
 
 export class StatsController {
     constructor(telegramBot, iotClient) {
         this.bot = telegramBot;
         this.iotClient = iotClient;
-        this.statsParamsByChat = [];
+        this.supportedCallbackDataTypes = [ CallbackDataType.selectThing, CallbackDataType.selectTimePeriod ];
         this.errorHandler = new ErrorHandler(telegramBot);
+        this.statsParamsByChat = [];
     }
     handleStatsCommand(msg) {
         const chatId = msg.chat.id;
         this._start(chatId);
     }
-    static canHandleCallbackData(callbackData) {
-        return _.contains(supportedCallbackDataTypes, callbackData.type);
+    canHandleCallbackData(callbackData) {
+        return _.contains(this.supportedCallbackDataTypes, callbackData.type);
     }
     handleCallbackQuery(callbackQuery, callbackData) {
         const chatId = callbackQuery.message.chat.id;
@@ -62,7 +63,7 @@ export class StatsController {
     async _selectThings(chatId, statsCriteria, answerCallbackQuery) {
         try {
             const response = await this.iotClient.thingsService.getThings();
-            const things = _.map(response.body.things, (thing) => {
+            const inlineKeyboardButtons = _.map(response.body.things, (thing) => {
                 const callbackData = new CallbackData(CallbackDataType.selectThing, thing.name);
                 return {
                     text: thing.name,
@@ -71,13 +72,13 @@ export class StatsController {
             });
             const options = {
                 reply_markup: {
-                    inline_keyboard: [ things ]
+                    inline_keyboard: TelegramInlineKeyboardHelper.rows(inlineKeyboardButtons)
                 }
             };
             if (!_.isUndefined(answerCallbackQuery)) {
                 answerCallbackQuery();
             }
-            this.bot.sendMessage(chatId, commandMessages.thingSelectMessage, options);
+            this.bot.sendMessage(chatId, messages.thingSelectMessage, options);
         } catch (err) {
             if (!_.isUndefined(answerCallbackQuery)) {
                 answerCallbackQuery();
@@ -88,7 +89,7 @@ export class StatsController {
     async _selectTimePeriod(chatId, answerCallbackQuery) {
         try {
             const response = await this.iotClient.timePeriodsService.getSupportedTimePeriods();
-            const timePeriods = _.map(response.body.timePeriods, (timePeriod) => {
+            const inlineKeyboardButtons = _.map(response.body.timePeriods, (timePeriod) => {
                 const callbackData = new CallbackData(CallbackDataType.selectTimePeriod, timePeriod);
                 return {
                     text: timePeriod,
@@ -97,11 +98,11 @@ export class StatsController {
             });
             const options = {
                 reply_markup: {
-                    inline_keyboard: [ timePeriods ]
+                    inline_keyboard: TelegramInlineKeyboardHelper.rows(inlineKeyboardButtons)
                 }
             };
             answerCallbackQuery();
-            this.bot.sendMessage(chatId, commandMessages.timePeriodSelectMessage, options);
+            this.bot.sendMessage(chatId, messages.timePeriodSelectMessage, options);
         } catch (err) {
             answerCallbackQuery();
             this.errorHandler.handleTimePeriodsError(err, chatId);

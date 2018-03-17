@@ -1,6 +1,10 @@
 const CallbackDataType = Object.freeze({
     selectThing: "selectThing",
-    selectTimePeriod: "selectTimePeriod"
+    selectTimePeriod: "selectTimePeriod",
+    selectNotificationType: "selectNotificationType",
+    selectThingForNotifications: "selectThingForNotifications",
+    selectObservationType: "selectObservationType",
+    selectSubscription: "selectSubscription"
 });
 
 class CallbackData {
@@ -21,6 +25,4 @@ class CallbackData {
     }
 }
 
-const supportedCallbackDataTypes = [ CallbackDataType.selectThing, CallbackDataType.selectTimePeriod ];
-
-export { CallbackDataType, CallbackData, supportedCallbackDataTypes };
+export { CallbackDataType, CallbackData };

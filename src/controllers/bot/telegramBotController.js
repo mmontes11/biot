@@ -3,6 +3,7 @@ import { ThingsController } from "./thingsController";
 import { DefaultMessageController } from "./defaultMessageController";
 import { StatsController } from "./statsController";
 import { NotificationsController } from "./notificationsController"
+import { SubscriptionsController } from "./subscriptionsController"
 import { CallbackData } from "../../models/callbackData";
 import telegramBot from '../../lib/telgramBot';
 import iotClient from '../../lib/iotClient';
@@ -16,40 +17,52 @@ class TelegramBotController {
         this.statsController = new StatsController(telegramBot, iotClient);
         this.defaultMessageController = new DefaultMessageController(telegramBot);
         this.notificationsController = new NotificationsController(telegramBot);
+        this.subscriptionsController = new SubscriptionsController(telegramBot, iotClient);
     }
     listen() {
         log.logInfo("Telegram bot started polling");
 
         this.bot.on('message', (msg) => {
-            try {
-                log.logMessage(msg);
-                if (!this.authController.isAuthorized(msg)) {
-                    this.authController.sendNotAuthorizedMessage(msg);
-                    return;
-                }
-                let handledMessage = false;
-                const text = msg.text;
-                if (/\/things/.test(text)) {
-                    this.thingsController.handleThingsCommand(msg);
-                    handledMessage = true;
-                }
-                if (/\/stats/.test(text)) {
-                    this.statsController.handleStatsCommand(msg);
-                    handledMessage = true;
-                }
-                if (!handledMessage) {
-                    this.defaultMessageController.sendDefaultMessage(msg);
-                }
-            } catch (err) {
-                log.logError(err);
+            log.logMessage(msg);
+            if (!this.authController.isAuthorized(msg)) {
+                this.authController.sendNotAuthorizedMessage(msg);
+                return;
+            }
+            let handledMessage = false;
+            const text = msg.text;
+            if (/\/things/.test(text)) {
+                this.thingsController.handleThingsCommand(msg);
+                handledMessage = true;
+            }
+            if (/\/stats/.test(text)) {
+                this.statsController.handleStatsCommand(msg);
+                handledMessage = true;
+            }
+            if (/\/subscribe/.test(text)) {
+                this.subscriptionsController.handleSubscribeCommand(msg);
+                handledMessage = true;
+            }
+            if (/\/unsubscribe/.test(text)) {
+                this.subscriptionsController.handleUnsubscribeCommand(msg);
+                handledMessage = true;
+            }
+            if (/\/mysubscriptions/.test(text)) {
+                this.subscriptionsController.handleMySubscriptionsCommand(msg);
+                handledMessage = true;
+            }
+            if (!handledMessage) {
+                this.defaultMessageController.sendDefaultMessage(msg);
             }
         });
 
         this.bot.on('callback_query', (callbackQuery) => {
             log.logCallbackQuery(callbackQuery);
             let callbackData = CallbackData.deserialize(callbackQuery.data);
-            if (StatsController.canHandleCallbackData(callbackData)) {
+            if (this.statsController.canHandleCallbackData(callbackData)) {
                 this.statsController.handleCallbackQuery(callbackQuery, callbackData);
+            }
+            if (this.subscriptionsController.canHandleCallbackData(callbackData)) {
+                this.subscriptionsController.handleCallbackQuery(callbackQuery, callbackData);
             }
         });
 
