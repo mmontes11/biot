@@ -29,7 +29,7 @@
     "bot",
     "telegram-bot-api",
     "iot",
-    "internet-of-things",
+    "internet-of-things"
   ],
   "author": "Martín Montes <martin11lrx@gmail.com>",
   "license": "MIT",
