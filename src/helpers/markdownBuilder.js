@@ -8,7 +8,7 @@ export class MarkdownBuilder {
         markdown += `I can notify you about anything that happens your things.\n\n`;
         markdown += `Available commands:\n`;
         markdown += `/things - Lists things\n`;
-        markdown += `/measurementStats - Provides measurement stats\n`;
+        markdown += `/measurementstats - Provides measurement stats\n`;
         markdown += `/subscribe - Subscribes to a MQTT topic\n`;
         markdown += `/unsubscribe - Unsubscribes from a MQTT topic\n`;
         markdown += `/mysubscriptions - Lists subscriptions\n`;

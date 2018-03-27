@@ -34,7 +34,7 @@ class TelegramBotController {
                 this.thingsController.handleThingsCommand(msg);
                 handledMessage = true;
             }
-            if (/\/measurementStats/.test(text)) {
+            if (/\/measurementstats/.test(text)) {
                 this.measurementStatsController.handleMeasurementStatsCommand(msg);
                 handledMessage = true;
             }
