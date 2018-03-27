@@ -5,13 +5,13 @@ import { NotificationType } from '../models/notificationType';
 export class MarkdownBuilder {
     static buildDefaultMessageMD() {
         let markdown = `I'm an [Internet of Things](https://en.wikipedia.org/wiki/Internet_of_things) bot. `;
-        markdown += `I can notify you about measurements and events in your things.\n\n`;
+        markdown += `I can notify you about anything that happens your things.\n\n`;
         markdown += `Available commands:\n`;
         markdown += `/things - Lists things\n`;
         markdown += `/stats - Provides measurement stats\n`;
-        markdown += `/subscribe - Subscribes this chat to notifications\n`;
-        markdown += `/unsubscribe - Unsubscribes this chat from notifications\n`;
-        markdown += `/mysubscriptions - Lists subscriptions of this chat\n`;
+        markdown += `/subscribe - Subscribes to a MQTT topic\n`;
+        markdown += `/unsubscribe - Unsubscribes from a MQTT topic\n`;
+        markdown += `/mysubscriptions - Lists subscriptions\n`;
         return markdown;
     }
     static buildThingsListMD(things) {
