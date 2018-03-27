@@ -1,7 +1,7 @@
 import { AuthController } from "./authController"
 import { ThingsController } from "./thingsController";
 import { DefaultMessageController } from "./defaultMessageController";
-import { StatsController } from "./statsController";
+import { MeasurementStatsController } from "./measurementStatsController";
 import { NotificationsController } from "./notificationsController"
 import { SubscriptionsController } from "./subscriptionsController"
 import { CallbackData } from "../../models/callbackData";
@@ -14,7 +14,7 @@ class TelegramBotController {
         this.bot = telegramBot;
         this.authController = new AuthController(telegramBot);
         this.thingsController = new ThingsController(telegramBot, iotClient);
-        this.statsController = new StatsController(telegramBot, iotClient);
+        this.measurementStatsController = new MeasurementStatsController(telegramBot, iotClient);
         this.defaultMessageController = new DefaultMessageController(telegramBot);
         this.notificationsController = new NotificationsController(telegramBot);
         this.subscriptionsController = new SubscriptionsController(telegramBot, iotClient);
@@ -34,8 +34,8 @@ class TelegramBotController {
                 this.thingsController.handleThingsCommand(msg);
                 handledMessage = true;
             }
-            if (/\/stats/.test(text)) {
-                this.statsController.handleStatsCommand(msg);
+            if (/\/measurementStats/.test(text)) {
+                this.measurementStatsController.handleMeasurementStatsCommand(msg);
                 handledMessage = true;
             }
             if (/\/subscribe/.test(text)) {
@@ -58,8 +58,8 @@ class TelegramBotController {
         this.bot.on('callback_query', (callbackQuery) => {
             log.logCallbackQuery(callbackQuery);
             let callbackData = CallbackData.deserialize(callbackQuery.data);
-            if (this.statsController.canHandleCallbackData(callbackData)) {
-                this.statsController.handleCallbackQuery(callbackQuery, callbackData);
+            if (this.measurementStatsController.canHandleCallbackData(callbackData)) {
+                this.measurementStatsController.handleCallbackQuery(callbackQuery, callbackData);
             }
             if (this.subscriptionsController.canHandleCallbackData(callbackData)) {
                 this.subscriptionsController.handleCallbackQuery(callbackQuery, callbackData);

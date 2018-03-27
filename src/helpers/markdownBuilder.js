@@ -8,7 +8,7 @@ export class MarkdownBuilder {
         markdown += `I can notify you about anything that happens your things.\n\n`;
         markdown += `Available commands:\n`;
         markdown += `/things - Lists things\n`;
-        markdown += `/stats - Provides measurement stats\n`;
+        markdown += `/measurementStats - Provides measurement stats\n`;
         markdown += `/subscribe - Subscribes to a MQTT topic\n`;
         markdown += `/unsubscribe - Unsubscribes from a MQTT topic\n`;
         markdown += `/mysubscriptions - Lists subscriptions\n`;
@@ -23,7 +23,7 @@ export class MarkdownBuilder {
         return markdown;
     }
     static buildStatsListMD(statsParams, stats) {
-        let markdown = `\`${statsParams.thing}\` stats by ${statsParams.timePeriod}:\n\n`;
+        let markdown = `\`${statsParams.thing}\` measurement stats by ${statsParams.timePeriod}:\n\n`;
         _.forEach(stats, (statsElement) => {
             markdown += MarkdownBuilder._buildStatsMD(statsElement);
             markdown += '\n';

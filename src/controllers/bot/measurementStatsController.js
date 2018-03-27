@@ -7,7 +7,7 @@ import { TelegramInlineKeyboardHelper } from '../../helpers/telegramInlineKeyboa
 import messages from '../../utils/messages';
 import errorMessages from '../../utils/errorMessages';
 
-export class StatsController {
+export class MeasurementStatsController {
     constructor(telegramBot, iotClient) {
         this.bot = telegramBot;
         this.iotClient = iotClient;
@@ -15,7 +15,7 @@ export class StatsController {
         this.errorHandler = new ErrorHandler(telegramBot);
         this.statsParamsByChat = [];
     }
-    handleStatsCommand(msg) {
+    handleMeasurementStatsCommand(msg) {
         const chatId = msg.chat.id;
         this._start(chatId);
     }
@@ -24,7 +24,7 @@ export class StatsController {
     }
     handleCallbackQuery(callbackQuery, callbackData) {
         const chatId = callbackQuery.message.chat.id;
-        const statsParams = this._getOrCreateStatsParams(chatId);
+        const statsParams = this._getOrCreateMeasurementStatsParams(chatId);
         const answerCallbackQuery = () => this.bot.answerCallbackQuery(callbackQuery.id);
         const reset = () => {
             answerCallbackQuery();
@@ -44,8 +44,8 @@ export class StatsController {
             case CallbackDataType.selectTimePeriod: {
                 if (!_.isUndefined(statsParams.thing) && _.isUndefined(statsParams.timePeriod)) {
                     statsParams.setTimePeriod(callbackData.data);
-                    this._deleteStatsParams(chatId);
-                    this._showStats(chatId, statsParams, answerCallbackQuery);
+                    this._deleteMeasurementStatsParams(chatId);
+                    this._showMeasurementStats(chatId, statsParams, answerCallbackQuery);
                 } else {
                     reset();
                 }
@@ -57,7 +57,7 @@ export class StatsController {
         }
     }
     _start(chatId) {
-        this._deleteStatsParams(chatId);
+        this._deleteMeasurementStatsParams(chatId);
         this._selectThings(chatId);
     }
     async _selectThings(chatId, statsCriteria, answerCallbackQuery) {
@@ -108,7 +108,7 @@ export class StatsController {
             this.errorHandler.handleTimePeriodsError(err, chatId);
         }
     }
-    async _showStats(chatId, statsParams, answerCallbackQuery) {
+    async _showMeasurementStats(chatId, statsParams, answerCallbackQuery) {
         try {
             const response = await this.iotClient.measurementService.getStats(statsParams.toJSON());
             const stats = response.body.stats;
@@ -124,7 +124,7 @@ export class StatsController {
             this.errorHandler.handleStatsError(err, chatId);
         }
     }
-    _deleteStatsParams(chatId) {
+    _deleteMeasurementStatsParams(chatId) {
         const statsParamsIndex = _.findIndex(this.statsParamsByChat, (statsParams) => {
             return statsParams.chatId === chatId;
         });
@@ -132,7 +132,7 @@ export class StatsController {
             this.statsParamsByChat.splice(statsParamsIndex, 1);
         }
     }
-    _getOrCreateStatsParams(chatId) {
+    _getOrCreateMeasurementStatsParams(chatId) {
         let statsParams =  _.find(this.statsParamsByChat, (statsParams) => {
             return statsParams.chatId === chatId;
         });
