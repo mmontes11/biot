@@ -1,8 +1,8 @@
 export default {
     thingSelectMessage: "Select thing:",
     timePeriodSelectMessage: "Select time period:",
-    notificationTypeSelectMessage: "Select notification type:",
-    observationTypeSelectMessage: "Select observation type:",
+    topicTypeSelectMessage: "Select topic type:",
+    topicSelectMessage: "Select topic:",
     subscriptionSelectMessage: "Select subscription:",
     subscriptionDeletedMessage: "Success! Your subscription was deleted"
 };

@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import { EmojiHandler } from './emojiHandler'
-import { NotificationType } from '../models/notificationType';
 
 export class MarkdownBuilder {
     static buildDefaultMessageMD() {
@@ -17,16 +16,42 @@ export class MarkdownBuilder {
     static buildThingsListMD(things) {
         let markdown = "";
         _.forEach(things, (thing) => {
-            markdown += MarkdownBuilder._buildThingMD(thing);
-            markdown += '\n';
+            markdown += `${MarkdownBuilder._buildThingMD(thing)}\n`;
         });
         return markdown;
     }
-    static buildStatsListMD(statsParams, stats) {
+    static buildMeasurementStatsListMD(statsParams, stats) {
         let markdown = `\`${statsParams.thing}\` measurement stats by ${statsParams.timePeriod}:\n\n`;
         _.forEach(stats, (statsElement) => {
-            markdown += MarkdownBuilder._buildStatsMD(statsElement);
-            markdown += '\n';
+            markdown += `${MarkdownBuilder._buildStatsMD(statsElement)}\n`;
+        });
+        return markdown;
+    }
+    static buildCustomTopicSubscriptionMD(topics) {
+        const mqttTopicUrl = "https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices";
+        let markdown = `Send me the topic you want to subscribe in [MQTT topic](${mqttTopicUrl}) format.\n`;
+        if (!_.isEmpty(topics)) {
+            markdown += "*FYI*: Right now, I am receiving info about this topics:\n";
+            _.forEach(topics, (topic) => {
+                markdown += `\`${topic}\`\n`;
+            });
+        }
+        return markdown;
+    }
+    static buildAlreadySubscribedMD(topic) {
+        let markdown = "You are already subscribed to:\n";
+        markdown += `\`${topic}\``;
+        return markdown
+    }
+    static buildSubscriptionSuccessMD(topic) {
+        let markdown = "Success! You will now receive notifications from:\n";
+        markdown += `\`${topic}\``;
+        return markdown;
+    }
+    static buildSubscriptionsMD(subscriptions) {
+        let markdown = "";
+        _.forEach(subscriptions, (subscription) => {
+            markdown += `\`${subscription.topic}\`\n`;
         });
         return markdown;
     }
@@ -57,24 +82,6 @@ export class MarkdownBuilder {
         let markdown = `It seems that _${measurementType}_ is ${changedText} in \`${thing}\`:\n`;
         markdown += `*current value*: ${measurementValue}${unit}\n`;
         markdown += `*growth rate*: ${growthRatePercentage}%\n`;
-        return markdown;
-    }
-    static buildSubscriptionsMD(subscriptions) {
-        let markdown = "";
-        _.forEach(subscriptions, (subscription) => {
-            markdown += MarkdownBuilder._buildSubscriptionMD(subscription);
-            markdown += '\n';
-        });
-        return markdown;
-    }
-    static buildSubscriptionSuccessMD(subscription) {
-        let markdown = "You are already subscribed to:\n\n";
-        markdown += `${MarkdownBuilder._buildSubscriptionMD(subscription)}`;
-        return markdown
-    }
-    static buildAlreadySubscribedMD(subscription) {
-        let markdown = "Success! You will now receive notifications from:\n\n";
-        markdown += `${MarkdownBuilder._buildSubscriptionMD(subscription)}`;
         return markdown;
     }
     static _buildThingMD(thing) {
@@ -123,11 +130,5 @@ export class MarkdownBuilder {
         } else {
             return "not changing";
         }
-    }
-    static _buildSubscriptionMD(subscription) {
-        let markdown = `*thing*: \`${subscription.thing}\`\n`;
-        markdown += `*observationType*: _${subscription.observationType}_\n`;
-        markdown += `*notificationType*: ${subscription.notificationType}\n`;
-        return markdown;
     }
 }

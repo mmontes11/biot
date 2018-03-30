@@ -1,7 +1,6 @@
 import httpStatus from 'http-status';
 import _ from 'underscore';
 import telegramBotController from '../bot/telegramBotController';
-import { NotificationType , supportedNotificationTypes } from "../../models/notificationType"
 
 const sendNotifications = async (req, res, next) => {
     const notifications = req.body.notifications;

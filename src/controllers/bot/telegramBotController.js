@@ -50,6 +50,14 @@ class TelegramBotController {
                 this.subscriptionsController.handleMySubscriptionsCommand(msg);
                 handledMessage = true;
             }
+            if (this.subscriptionsController.shouldHandleCustomTopicSubscription(msg)) {
+                if (handledMessage) {
+                    this.subscriptionsController.resetCustomTopicSubscription(msg);
+                } else {
+                    this.subscriptionsController.handleCustomTopicSubscription(msg);
+                    handledMessage = true;
+                }
+            }
             if (!handledMessage) {
                 this.defaultMessageController.sendDefaultMessage(msg);
             }

@@ -2,33 +2,43 @@ import _ from 'underscore';
 import httpStatus from 'http-status';
 import errorMessages from '../utils/errorMessages'
 import log from '../utils/log';
+import { MarkdownBuilder } from '../helpers/markdownBuilder';
 
 export class ErrorHandler {
     constructor(telegramBot) {
         this.bot = telegramBot;
     }
     handleThingsError(err, chatId) {
-        this._handleError(err, chatId, errorMessages.noThingsAvailable, errorMessages.errorGettingThings);
+        this.handleError(err, chatId, errorMessages.noThingsAvailable, errorMessages.errorGettingThings);
     }
     handleTimePeriodsError(err, chatId) {
-        this._handleError(err, chatId, errorMessages.noTimePeriodsAvailable, errorMessages.errorGettingTimePeriods)
+        this.handleError(err, chatId, errorMessages.noTimePeriodsAvailable, errorMessages.errorGettingTimePeriods)
     }
     handleStatsError(err, chatId) {
-        this._handleError(err, chatId, errorMessages.noStatsAvailable, errorMessages.errorGettingStats)
-    }
-    handleObservationTypesError(err, chatId) {
-        this._handleError(err, chatId, errorMessages.noObservationTypesAvailable, errorMessages.errorGettingObservationTypes);
+        this.handleError(err, chatId, errorMessages.noStatsAvailable, errorMessages.errorGettingStats)
     }
     handleCreateSubscriptionError(err, chatId) {
-        this._handleError(err, chatId, undefined, errorMessages.errorSubscribing)
+        if (_.isEqual(err.statusCode, httpStatus.CONFLICT)) {
+            const topic = err.body.topic;
+            const markdown = MarkdownBuilder.buildAlreadySubscribedMD(topic);
+            const options = {
+                parse_mode: "Markdown"
+            };
+            this.bot.sendMessage(chatId, markdown, options);
+        } else {
+            this.handleError(err, chatId, undefined, errorMessages.errorSubscribing)
+        }
     }
     handleDeleteSubscriptionError(err, chatId) {
-        this._handleError(err, chatId, errorMessages.deleteSubscriptionNotFound, errorMessages.errorDeleteSubscription);
+        this.handleError(err, chatId, errorMessages.deleteSubscriptionNotFound, errorMessages.errorDeleteSubscription);
     }
     handleGetSubscriptionsError(err, chatId) {
-        this._handleError(err, chatId, errorMessages.noSubscriptions, errorMessages.errorGettingSubscriptions);
+        this.handleError(err, chatId, errorMessages.noSubscriptions, errorMessages.errorGettingSubscriptions);
     }
-    _handleError(err, chatId, notFoundMessage, errorMessage) {
+    handleGetTopicsError(err, chatId) {
+        this.handleError(err, chatId, errorMessages.noTopics, errorMessages.errorGettingTopics);
+    }
+    handleError(err, chatId, notFoundMessage, errorMessage) {
         log.logError(err);
         if (_.isEqual(err.statusCode, httpStatus.NOT_FOUND)) {
             const notFoundError = _.isUndefined(notFoundMessage) ? errorMessages.errorGenericNotFound : notFoundMessage;

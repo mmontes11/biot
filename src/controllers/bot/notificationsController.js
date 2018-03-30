@@ -2,7 +2,6 @@ import Promise from 'bluebird';
 import _ from 'underscore';
 import log from '../../utils/log';
 import { MarkdownBuilder } from '../../helpers/markdownBuilder';
-import {NotificationType} from "../../models/notificationType";
 
 export class NotificationsController {
     constructor(telegramBot) {

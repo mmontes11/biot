@@ -60,7 +60,7 @@ export class MeasurementStatsController {
         this._deleteMeasurementStatsParams(chatId);
         this._selectThings(chatId);
     }
-    async _selectThings(chatId, statsCriteria, answerCallbackQuery) {
+    async _selectThings(chatId) {
         try {
             const response = await this.iotClient.thingsService.getThings();
             const inlineKeyboardButtons = _.map(response.body.things, (thing) => {
@@ -75,14 +75,8 @@ export class MeasurementStatsController {
                     inline_keyboard: TelegramInlineKeyboardHelper.rows(inlineKeyboardButtons)
                 }
             };
-            if (!_.isUndefined(answerCallbackQuery)) {
-                answerCallbackQuery();
-            }
             this.bot.sendMessage(chatId, messages.thingSelectMessage, options);
         } catch (err) {
-            if (!_.isUndefined(answerCallbackQuery)) {
-                answerCallbackQuery();
-            }
             this.errorHandler.handleThingsError(err, chatId);
         }
     }
@@ -112,7 +106,7 @@ export class MeasurementStatsController {
         try {
             const response = await this.iotClient.measurementService.getStats(statsParams.toJSON());
             const stats = response.body.stats;
-            const markdown = MarkdownBuilder.buildStatsListMD(statsParams, stats);
+            const markdown = MarkdownBuilder.buildMeasurementStatsListMD(statsParams, stats);
             const options = {
                 parse_mode: "Markdown",
                 disable_web_page_preview: true
