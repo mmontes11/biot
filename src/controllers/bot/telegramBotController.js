@@ -2,8 +2,9 @@ import { AuthController } from "./authController"
 import { ThingsController } from "./thingsController";
 import { DefaultMessageController } from "./defaultMessageController";
 import { MeasurementStatsController } from "./measurementStatsController";
-import { NotificationsController } from "./notificationsController"
-import { SubscriptionsController } from "./subscriptionsController"
+import { NotificationsController } from "./notificationsController";
+import { SubscriptionsController } from "./subscriptionsController";
+import { TopicsController } from "./topicsController";
 import { CallbackData } from "../../models/callbackData";
 import telegramBot from '../../lib/telgramBot';
 import iotClient from '../../lib/iotClient';
@@ -18,6 +19,7 @@ class TelegramBotController {
         this.defaultMessageController = new DefaultMessageController(telegramBot);
         this.notificationsController = new NotificationsController(telegramBot);
         this.subscriptionsController = new SubscriptionsController(telegramBot, iotClient);
+        this.topicsController = new TopicsController(telegramBot, iotClient);
     }
     listen() {
         log.logInfo("Telegram bot started polling");
@@ -36,6 +38,10 @@ class TelegramBotController {
             }
             if (/\/measurementstats/.test(text)) {
                 this.measurementStatsController.handleMeasurementStatsCommand(msg);
+                handledMessage = true;
+            }
+            if (/\/topics/.test(text)) {
+                this.topicsController.handleTopicsCommand(msg);
                 handledMessage = true;
             }
             if (/\/subscribe/.test(text)) {

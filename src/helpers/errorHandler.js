@@ -17,6 +17,9 @@ export class ErrorHandler {
     handleStatsError(err, chatId) {
         this.handleError(err, chatId, errorMessages.noStatsAvailable, errorMessages.errorGettingStats)
     }
+    handleTopicsError(err, chatId) {
+        this.handleError(err, chatId, errorMessages.noTopicsAvailable, errorMessages.errorGettingTopics);
+    }
     handleCreateSubscriptionError(err, chatId) {
         if (_.isEqual(err.statusCode, httpStatus.CONFLICT)) {
             const topic = err.body.topic;
@@ -36,7 +39,7 @@ export class ErrorHandler {
         this.handleError(err, chatId, errorMessages.noSubscriptions, errorMessages.errorGettingSubscriptions);
     }
     handleGetTopicsError(err, chatId) {
-        this.handleError(err, chatId, errorMessages.noTopics, errorMessages.errorGettingTopics);
+        this.handleError(err, chatId, errorMessages.noTopicsAvailable, errorMessages.errorGettingTopics);
     }
     handleError(err, chatId, notFoundMessage, errorMessage) {
         log.logError(err);

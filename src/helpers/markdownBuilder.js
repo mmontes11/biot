@@ -8,6 +8,7 @@ export class MarkdownBuilder {
         markdown += `Available commands:\n`;
         markdown += `/things - Lists things\n`;
         markdown += `/measurementstats - Provides measurement stats\n`;
+        markdown += `/topics - Lists MQTT topics\n`;
         markdown += `/subscribe - Subscribes to a MQTT topic\n`;
         markdown += `/unsubscribe - Unsubscribes from a MQTT topic\n`;
         markdown += `/mysubscriptions - Lists subscriptions\n`;
@@ -24,6 +25,13 @@ export class MarkdownBuilder {
         let markdown = `\`${statsParams.thing}\` measurement stats by ${statsParams.timePeriod}:\n\n`;
         _.forEach(stats, (statsElement) => {
             markdown += `${MarkdownBuilder._buildStatsMD(statsElement)}\n`;
+        });
+        return markdown;
+    }
+    static buildTopicsListMD(topics) {
+        let markdown = "";
+        _.forEach(topics, (topic) => {
+            markdown += `\`${topic}\`\n`;
         });
         return markdown;
     }
