@@ -4,21 +4,20 @@ export class SubscriptionParams {
     constructor(chatId) {
         this.chatId = chatId;
     }
-    setNotificationType(notificationType) {
-        this.notificationType = notificationType;
+    setTopicType(topicType) {
+        this.topicType = topicType;
     }
-    setThing(thing) {
-        this.thing = thing;
+    setTopicId(topicId) {
+        this.topicId = topicId;
     }
-    setObservationType(observationType) {
-        this.observationType = observationType;
+    setTopic(topic) {
+        this.topic = topic;
     }
     toJSON() {
         return {
             chatId: this.chatId,
-            notificationType: this.notificationType,
-            thing: this.thing,
-            observationType: this.observationType
+            topicId: this.topicId,
+            topic: this.topic
         };
     }
 }

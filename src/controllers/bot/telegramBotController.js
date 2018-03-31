@@ -1,9 +1,10 @@
 import { AuthController } from "./authController"
 import { ThingsController } from "./thingsController";
 import { DefaultMessageController } from "./defaultMessageController";
-import { StatsController } from "./statsController";
-import { NotificationsController } from "./notificationsController"
-import { SubscriptionsController } from "./subscriptionsController"
+import { MeasurementStatsController } from "./measurementStatsController";
+import { NotificationsController } from "./notificationsController";
+import { SubscriptionsController } from "./subscriptionsController";
+import { TopicsController } from "./topicsController";
 import { CallbackData } from "../../models/callbackData";
 import telegramBot from '../../lib/telgramBot';
 import iotClient from '../../lib/iotClient';
@@ -14,10 +15,11 @@ class TelegramBotController {
         this.bot = telegramBot;
         this.authController = new AuthController(telegramBot);
         this.thingsController = new ThingsController(telegramBot, iotClient);
-        this.statsController = new StatsController(telegramBot, iotClient);
+        this.measurementStatsController = new MeasurementStatsController(telegramBot, iotClient);
         this.defaultMessageController = new DefaultMessageController(telegramBot);
         this.notificationsController = new NotificationsController(telegramBot);
         this.subscriptionsController = new SubscriptionsController(telegramBot, iotClient);
+        this.topicsController = new TopicsController(telegramBot, iotClient);
     }
     listen() {
         log.logInfo("Telegram bot started polling");
@@ -34,8 +36,12 @@ class TelegramBotController {
                 this.thingsController.handleThingsCommand(msg);
                 handledMessage = true;
             }
-            if (/\/stats/.test(text)) {
-                this.statsController.handleStatsCommand(msg);
+            if (/\/measurementstats/.test(text)) {
+                this.measurementStatsController.handleMeasurementStatsCommand(msg);
+                handledMessage = true;
+            }
+            if (/\/topics/.test(text)) {
+                this.topicsController.handleTopicsCommand(msg);
                 handledMessage = true;
             }
             if (/\/subscribe/.test(text)) {
@@ -50,6 +56,14 @@ class TelegramBotController {
                 this.subscriptionsController.handleMySubscriptionsCommand(msg);
                 handledMessage = true;
             }
+            if (this.subscriptionsController.shouldHandleCustomTopicSubscription(msg)) {
+                if (handledMessage) {
+                    this.subscriptionsController.resetCustomTopicSubscription(msg);
+                } else {
+                    this.subscriptionsController.handleCustomTopicSubscription(msg);
+                    handledMessage = true;
+                }
+            }
             if (!handledMessage) {
                 this.defaultMessageController.sendDefaultMessage(msg);
             }
@@ -58,8 +72,8 @@ class TelegramBotController {
         this.bot.on('callback_query', (callbackQuery) => {
             log.logCallbackQuery(callbackQuery);
             let callbackData = CallbackData.deserialize(callbackQuery.data);
-            if (this.statsController.canHandleCallbackData(callbackData)) {
-                this.statsController.handleCallbackQuery(callbackQuery, callbackData);
+            if (this.measurementStatsController.canHandleCallbackData(callbackData)) {
+                this.measurementStatsController.handleCallbackQuery(callbackQuery, callbackData);
             }
             if (this.subscriptionsController.canHandleCallbackData(callbackData)) {
                 this.subscriptionsController.handleCallbackQuery(callbackQuery, callbackData);
@@ -70,8 +84,14 @@ class TelegramBotController {
             log.logError(err);
         });
     }
-    async handleNotifications(notifications) {
-        return await this.notificationsController.handleNotifications(notifications);
+    handleEventNotifications(notifications) {
+        return this.notificationsController.handleEventNotifications(notifications);
+    }
+    handleMeasurementNotifications(notifications) {
+        return this.notificationsController.handleMeasurementNotifications(notifications);
+    }
+    handleMeasurementChangedNotifications(notifications) {
+        return this.notificationsController.handleMeasurementChangedNotifications(notifications);
     }
     async stop() {
         try {

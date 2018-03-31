@@ -1,31 +1,57 @@
 import httpStatus from 'http-status';
 import _ from 'underscore';
+import log from '../../utils/log';
+import requestValidator from '../../helpers/requestValidator';
 import telegramBotController from '../bot/telegramBotController';
-import { NotificationType , supportedNotificationTypes } from "../../models/notificationType"
 
-const sendNotifications = async (req, res, next) => {
+const receiveEventNotifications = async(req, res, next) => {
+    try {
+        await _sendNotifications(req, res,
+                                requestValidator.isValidObservationNotification,
+                                notifications => telegramBotController.handleEventNotifications(notifications));
+    } catch (err) {
+        log.logError(err);
+        res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
+    }
+};
+
+const receiveMeasurementNotifications = async(req, res, next) => {
+    try {
+        await _sendNotifications(req, res,
+                                requestValidator.isValidObservationNotification,
+                                notifications => telegramBotController.handleMeasurementNotifications(notifications));
+    } catch (err) {
+        log.logError(err);
+        res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
+    }
+};
+
+const receiveMeasurementChangedNotifications = async(req, res, next) => {
+    try {
+        await _sendNotifications(req, res,
+                                requestValidator.isValidMeasurementChangedNotification,
+                                notifications => telegramBotController.handleMeasurementChangedNotifications(notifications));
+    } catch (err) {
+        log.logError(err);
+        res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
+    }
+};
+
+const _sendNotifications = async(req, res, isValidNotification, handleNotifications) => {
     const notifications = req.body.notifications;
-    if (!_.isArray(notifications)) {
-        return res.sendStatus(httpStatus.BAD_REQUEST);
-    }
-    if (_.isEmpty(notifications)) {
-        return res.sendStatus(httpStatus.NOT_MODIFIED);
-    }
-
     let validNotifications = [];
     let invalidNotifications = [];
     for (const notification of notifications) {
-        if (_isValidNotification(notification)) {
+        if (isValidNotification(notification)) {
             validNotifications.push(notification);
         } else {
             invalidNotifications.push(notification);
         }
     }
-
     if (_.isEmpty(validNotifications)) {
         return res.status(httpStatus.BAD_REQUEST).json({ invalidNotifications });
     } else {
-        const handledNotifications = await telegramBotController.handleNotifications(validNotifications);
+        const handledNotifications = await handleNotifications(notifications);
         if (_.isEmpty(invalidNotifications) && _.isEmpty(handledNotifications.erroredNotifications)) {
             res.status(httpStatus.OK).json({
                 sentNotifications: handledNotifications.sentNotifications
@@ -40,11 +66,4 @@ const sendNotifications = async (req, res, next) => {
     }
 };
 
-const _isValidNotification = (notification) => {
-    const invalidNotificationType = _.isUndefined(notification.type) || !_.contains(supportedNotificationTypes, notification.type);
-    const invalidFields = _.isUndefined(notification.chatId) || _.isUndefined(notification.thing) || _.isUndefined(notification.observation);
-    const invalidMeasurementChanged = _.isEqual(notification.type, NotificationType.measurementChanged) && _.isUndefined(notification.changes);
-    return !(invalidNotificationType || invalidFields || invalidMeasurementChanged);
-};
-
-export default { sendNotifications };
+export default { receiveEventNotifications, receiveMeasurementNotifications, receiveMeasurementChangedNotifications };

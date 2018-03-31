@@ -1,26 +1,28 @@
+import _ from 'underscore';
 import { MarkdownBuilder } from '../../helpers/markdownBuilder';
 import { ErrorHandler } from '../../helpers/errorHandler';
 import errorMessages from '../../utils/errorMessages';
 
-export class ThingsController {
+export class TopicsController {
     constructor(telegramBot, iotClient) {
         this.bot = telegramBot;
         this.iotClient = iotClient;
         this.errorHandler = new ErrorHandler(telegramBot);
     }
-    async handleThingsCommand(msg) {
+    async handleTopicsCommand(msg) {
         const chatId = msg.chat.id;
         try {
-            const res = await this.iotClient.thingsService.getThings();
-            const things = res.body.things;
-            const markdown = MarkdownBuilder.buildThingsListMD(things);
+            const res = await this.iotClient.topicsService.getTopics();
+            const topics = _.map(res.body.topics, (topicObject) => {
+                return topicObject.topic;
+            });
+            const markdown = MarkdownBuilder.buildTopicsListMD(topics);
             const options = {
-                parse_mode: "Markdown",
-                disable_web_page_preview: true
+                parse_mode: "Markdown"
             };
             this.bot.sendMessage(chatId, markdown, options);
         } catch (err) {
-            this.errorHandler.handleThingsError(err, chatId);
+            this.errorHandler.handleTopicsError(err, chatId);
         }
     }
 }

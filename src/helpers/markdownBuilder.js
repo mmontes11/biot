@@ -1,80 +1,83 @@
 import _ from 'underscore';
 import { EmojiHandler } from './emojiHandler'
-import { NotificationType } from '../models/notificationType';
 
 export class MarkdownBuilder {
     static buildDefaultMessageMD() {
         let markdown = `I'm an [Internet of Things](https://en.wikipedia.org/wiki/Internet_of_things) bot. `;
-        markdown += `I can notify you about measurements and events in your things.\n\n`;
+        markdown += `I can notify you about anything that happens your things.\n\n`;
         markdown += `Available commands:\n`;
         markdown += `/things - Lists things\n`;
-        markdown += `/stats - Provides measurement stats\n`;
-        markdown += `/subscribe - Subscribes this chat to notifications\n`;
-        markdown += `/unsubscribe - Unsubscribes this chat from notifications\n`;
-        markdown += `/mysubscriptions - Lists subscriptions of this chat\n`;
+        markdown += `/measurementstats - Provides measurement stats\n`;
+        markdown += `/topics - Lists MQTT topics\n`;
+        markdown += `/subscribe - Subscribes to a MQTT topic\n`;
+        markdown += `/unsubscribe - Unsubscribes from a MQTT topic\n`;
+        markdown += `/mysubscriptions - Lists subscriptions\n`;
         return markdown;
     }
     static buildThingsListMD(things) {
         let markdown = "";
         _.forEach(things, (thing) => {
-            markdown += MarkdownBuilder._buildThingMD(thing);
-            markdown += '\n';
+            markdown += `${MarkdownBuilder._buildThingMD(thing)}\n`;
         });
         return markdown;
     }
-    static buildStatsListMD(statsParams, stats) {
-        let markdown = `\`${statsParams.thing}\` stats by ${statsParams.timePeriod}:\n\n`;
+    static buildMeasurementStatsListMD(statsParams, stats) {
+        let markdown = `\`${statsParams.thing}\` measurement stats by ${statsParams.timePeriod}:\n\n`;
         _.forEach(stats, (statsElement) => {
-            markdown += MarkdownBuilder._buildStatsMD(statsElement);
-            markdown += '\n';
+            markdown += `${MarkdownBuilder._buildStatsMD(statsElement)}\n`;
         });
         return markdown;
     }
-    static buildEventNotificationMD(notification) {
-        const thing = notification.thing;
-        const eventType = notification.observation.type;
-        let markdown = `Something happened in \`${thing}\`:\n`;
-        markdown += `_${eventType}_\n`;
+    static buildTopicsListMD(topics) {
+        let markdown = "";
+        _.forEach(topics, (topic) => {
+            markdown += `\`${topic}\`\n`;
+        });
         return markdown;
     }
-    static buildMeasurementNotificationMD(notification) {
-        const thing = notification.thing;
-        const measurementType = notification.observation.type;
-        const value = notification.observation.value;
-        const unit = notification.observation.unit.symbol;
-        let markdown = `New _${measurementType}_ measurement performed in \`${thing}\`:\n`;
-        markdown += `${value}${unit}\n`;
+    static buildCustomTopicSubscriptionMD(topics) {
+        const mqttTopicUrl = "https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices";
+        let markdown = `Send me the topic you want to subscribe in [MQTT topic](${mqttTopicUrl}) format.\n`;
+        if (!_.isEmpty(topics)) {
+            markdown += "*FYI*: Right now, I am receiving info about this topics:\n";
+            _.forEach(topics, (topic) => {
+                markdown += `\`${topic}\`\n`;
+            });
+        }
+        return markdown;
+    }
+    static buildAlreadySubscribedMD(topic) {
+        let markdown = "You are already subscribed to:\n";
+        markdown += `\`${topic}\``;
         return markdown
     }
-    static buildMeasurementChangedNotificationMD(notification) {
-        const measurementType = notification.observation.type;
-        const measurementValue = notification.observation.value;
-        const thing = notification.thing;
-        const unit = notification.observation.unit.symbol;
-        const growthRate = notification.changes.growthRate;
-        const growthRatePercentage = growthRate * 100;
-        const changedText = MarkdownBuilder._changedText(growthRate);
-        let markdown = `It seems that _${measurementType}_ is ${changedText} in \`${thing}\`:\n`;
-        markdown += `*current value*: ${measurementValue}${unit}\n`;
-        markdown += `*growth rate*: ${growthRatePercentage}%\n`;
+    static buildSubscriptionSuccessMD(topic) {
+        let markdown = "Success! You will now receive notifications from:\n";
+        markdown += `\`${topic}\``;
         return markdown;
     }
     static buildSubscriptionsMD(subscriptions) {
         let markdown = "";
         _.forEach(subscriptions, (subscription) => {
-            markdown += MarkdownBuilder._buildSubscriptionMD(subscription);
-            markdown += '\n';
+            markdown += `\`${subscription.topic}\`\n`;
         });
         return markdown;
     }
-    static buildSubscriptionSuccessMD(subscription) {
-        let markdown = "You are already subscribed to:\n\n";
-        markdown += `${MarkdownBuilder._buildSubscriptionMD(subscription)}`;
+    static buildEventNotificationMD(notification) {
+        return `A new *event* related to the topic \`${notification.topic}\` has just happened`;
+    }
+    static buildMeasurementNotificationMD(notification) {
+        let markdown = `A new *measurement* related to the topic \`${notification.topic}\` has been performed:\n\n`;
+        markdown += `*current value*: ${notification.observation.value}${notification.observation.unit.symbol}`;
         return markdown
     }
-    static buildAlreadySubscribedMD(subscription) {
-        let markdown = "Success! You will now receive notifications from:\n\n";
-        markdown += `${MarkdownBuilder._buildSubscriptionMD(subscription)}`;
+    static buildMeasurementChangedNotificationMD(notification) {
+        const growthRate = notification.changes.growthRate;
+        const growthRatePercentage = growthRate * 100;
+        const changedText = MarkdownBuilder._changedText(growthRate);
+        let markdown = `It seems that the *measurement* related to the topic \`${notification.topic}\` is ${changedText}:\n\n`;
+        markdown += `*current value*: ${notification.observation.value}${notification.observation.unit.symbol}\n`;
+        markdown += `*growth rate*: ${growthRatePercentage}%`;
         return markdown;
     }
     static _buildThingMD(thing) {
@@ -123,11 +126,5 @@ export class MarkdownBuilder {
         } else {
             return "not changing";
         }
-    }
-    static _buildSubscriptionMD(subscription) {
-        let markdown = `*thing*: \`${subscription.thing}\`\n`;
-        markdown += `*observationType*: _${subscription.observationType}_\n`;
-        markdown += `*notificationType*: ${subscription.notificationType}\n`;
-        return markdown;
     }
 }

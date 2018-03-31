@@ -3,16 +3,16 @@ export default {
     noThingsAvailable: "No things available",
     noTimePeriodsAvailable: "No time periods available",
     noStatsAvailable: "No stats available",
-    noObservationTypesAvailable: "No observation types available",
+    noTopicsAvailable: "No topics available",
     noSubscriptions: "You are not subscribed to anything",
-    deleteSubscriptionNotFound: "Oops! This is awkward... You are trying to delete a subscription that doesn't actually exist.",
+    deleteSubscriptionNotFound: "Oops! This is awkward... you are trying to delete a subscription that doesn't actually exist.",
     errorGettingThings: "Ouch! It seems that something went wrong while obtaining things",
     errorGettingTimePeriods: "Ouch! It seems that something went wrong while obtaining time periods",
     errorGettingStats: "Ouch! It seems that something went wrong while stats were calculated",
-    errorGettingObservationTypes: "Error getting observation type",
     errorSubscribing: "Ouch! It seems that something went wrong while subscribing",
     errorGettingSubscriptions: "Ouch! It seems that something went wrong while getting subscriptions",
     errorDeleteSubscription: "Ouch! It seems that something went wrong while deleting the subscription",
-    errorGenericNotFound: "Oops! This is awkward... You are looking for something that doesn't actually exist.",
-    errorGeneric: "Ouch! Houston, we have a problem... Something went wrong."
+    errorGettingTopics: "Ouch! It seems that something went wrong while getting topics",
+    errorGenericNotFound: "Oops! This is awkward... you are looking for something that doesn't actually exist.",
+    errorGeneric: "Ouch! Houston, we have a problem... something went wrong."
 }

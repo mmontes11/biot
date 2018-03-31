@@ -16,7 +16,7 @@ export default {
     biotGrowthRateModerateAbsoluteThreshold: 0.4,
     biotGrowthRateHighAbsoluteThreshold: 0.6,
     biotDebug: true,
-    iotServerHost: 'http://localhost:9000',
+    iotServerUrl: 'http://localhost:9000',
     iotServerBasicAuthUsername: 'admin',
     iotServerBasicAuthPassword: 'admin',
     iotServerUsername: 'admin',

@@ -2,7 +2,7 @@ import IoTClient from "@mmontes11/iot-client";
 import config from '../config/index';
 
 const iotClient = new IoTClient({
-    host: config.iotServerHost,
+    url: config.iotServerUrl,
     basicAuthUsername: config.iotServerBasicAuthUsername,
     basicAuthPassword: config.iotServerBasicAuthPassword,
     username: config.iotServerUsername,
