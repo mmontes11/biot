@@ -1,7 +1,10 @@
 import express from 'express';
 import httpStatus from 'http-status';
 import authRouter from './authRouter';
-import notificationsRouter from './notificationsRouter';
+import eventRouter from './eventRouter';
+import measurementRouter from './measurementRouter';
+import measurementChangedRouter from './measurementChangedRouter';
+
 
 const router = express.Router();
 
@@ -10,6 +13,8 @@ router.get('/health-check', (req, res) => {
 });
 
 router.use('/auth', authRouter);
-router.use('/notifications', notificationsRouter);
+router.use('/event', eventRouter);
+router.use('/measurement', measurementRouter);
+router.use('/measurementChanged', measurementChangedRouter);
 
 export default router;

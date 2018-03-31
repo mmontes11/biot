@@ -64,32 +64,20 @@ export class MarkdownBuilder {
         return markdown;
     }
     static buildEventNotificationMD(notification) {
-        const thing = notification.thing;
-        const eventType = notification.observation.type;
-        let markdown = `Something happened in \`${thing}\`:\n`;
-        markdown += `_${eventType}_\n`;
-        return markdown;
+        return `A new *event* related to the topic \`${notification.topic}\` has just happened`;
     }
     static buildMeasurementNotificationMD(notification) {
-        const thing = notification.thing;
-        const measurementType = notification.observation.type;
-        const value = notification.observation.value;
-        const unit = notification.observation.unit.symbol;
-        let markdown = `New _${measurementType}_ measurement performed in \`${thing}\`:\n`;
-        markdown += `${value}${unit}\n`;
+        let markdown = `A new *measurement* related to the topic \`${notification.topic}\` has been performed:\n\n`;
+        markdown += `*current value*: ${notification.observation.value}${notification.observation.unit.symbol}`;
         return markdown
     }
     static buildMeasurementChangedNotificationMD(notification) {
-        const measurementType = notification.observation.type;
-        const measurementValue = notification.observation.value;
-        const thing = notification.thing;
-        const unit = notification.observation.unit.symbol;
         const growthRate = notification.changes.growthRate;
         const growthRatePercentage = growthRate * 100;
         const changedText = MarkdownBuilder._changedText(growthRate);
-        let markdown = `It seems that _${measurementType}_ is ${changedText} in \`${thing}\`:\n`;
-        markdown += `*current value*: ${measurementValue}${unit}\n`;
-        markdown += `*growth rate*: ${growthRatePercentage}%\n`;
+        let markdown = `It seems that the *measurement* related to the topic \`${notification.topic}\` is ${changedText}:\n\n`;
+        markdown += `*current value*: ${notification.observation.value}${notification.observation.unit.symbol}\n`;
+        markdown += `*growth rate*: ${growthRatePercentage}%`;
         return markdown;
     }
     static _buildThingMD(thing) {
