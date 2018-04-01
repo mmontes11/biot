@@ -3,23 +3,14 @@ import _ from 'underscore';
 import log from '../../utils/log';
 import { MarkdownBuilder } from '../../helpers/markdownBuilder';
 
-export class NotificationsController {
+class NotificationsController {
     constructor(telegramBot) {
         this.bot = telegramBot;
     }
-    handleEventNotifications(notifications) {
-        return this._handleNotifications(notifications, notification => this._handleEventNotification(notification));
-    }
-    handleMeasurementNotifications(notifications) {
-        return this._handleNotifications(notifications, notification => this._handleMeasurementNotification(notification));
-    }
-    handleMeasurementChangedNotifications(notifications) {
-        return this._handleNotifications(notifications, notification => this._handleMeasurementChangedNotification(notification));
-    }
-    async _handleNotifications(notifications, handleNotification) {
+    async handleNotifications(notifications, buildNotificationMD) {
         log.logReceivedNotifications(notifications);
         const sendMessagePromises = _.map(notifications, (notification) => {
-            return handleNotification(notification).reflect();
+            return this._handleNotification(notification, buildNotificationMD).reflect();
         });
         let sentNotifications = [];
         let erroredNotifications = [];
@@ -39,21 +30,12 @@ export class NotificationsController {
             throw err;
         }
     }
-    _handleEventNotification(notification) {
-        return this._handleNotification(notification, MarkdownBuilder.buildEventNotificationMD);
-    }
-    _handleMeasurementNotification(notification) {
-        return this._handleNotification(notification, MarkdownBuilder.buildMeasurementNotificationMD);
-    }
-    _handleMeasurementChangedNotification(notification) {
-        return this._handleNotification(notification, MarkdownBuilder.buildMeasurementChangedNotificationMD);
-    }
-    _handleNotification(notification, buildMD) {
+    _handleNotification(notification, buildNotificationMD) {
         return new Promise((resolve, reject) => {
             const options = {
                 parse_mode: "Markdown"
             };
-            const markdown = buildMD(notification);
+            const markdown = buildNotificationMD(notification);
             this.bot.sendMessage(notification.chatId, markdown, options)
                 .then((msg) => {
                     log.logMessage(msg);
@@ -66,3 +48,32 @@ export class NotificationsController {
         });
     }
 }
+
+class EventNotificationsController extends NotificationsController {
+    constructor(telegramBot) {
+        super(telegramBot)
+    }
+    handleNotifications(notifications) {
+        return super.handleNotifications(notifications, MarkdownBuilder.buildEventNotificationMD)
+    }
+}
+
+class MeasurementNotificationsController extends NotificationsController {
+    constructor(telegramBot) {
+        super(telegramBot)
+    }
+    handleNotifications(notifications) {
+        return super.handleNotifications(notifications, MarkdownBuilder.buildMeasurementNotificationMD)
+    }
+}
+
+class MeasurementChangedNotificationsController extends NotificationsController {
+    constructor(telegramBot) {
+        super(telegramBot)
+    }
+    handleNotifications(notifications) {
+        return super.handleNotifications(notifications, MarkdownBuilder.buildMeasurementChangedNotificationMD)
+    }
+}
+
+export { EventNotificationsController, MeasurementNotificationsController, MeasurementChangedNotificationsController }

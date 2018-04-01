@@ -2,7 +2,8 @@ import { AuthController } from "./authController"
 import { ThingsController } from "./thingsController";
 import { DefaultMessageController } from "./defaultMessageController";
 import { MeasurementStatsController } from "./measurementStatsController";
-import { NotificationsController } from "./notificationsController";
+import { EventNotificationsController, MeasurementNotificationsController, MeasurementChangedNotificationsController }
+from "./notificationsController";
 import { SubscriptionsController } from "./subscriptionsController";
 import { TopicsController } from "./topicsController";
 import { CallbackData } from "../../models/callbackData";
@@ -17,7 +18,9 @@ class TelegramBotController {
         this.thingsController = new ThingsController(telegramBot, iotClient);
         this.measurementStatsController = new MeasurementStatsController(telegramBot, iotClient);
         this.defaultMessageController = new DefaultMessageController(telegramBot);
-        this.notificationsController = new NotificationsController(telegramBot);
+        this.eventNotificationsController = new EventNotificationsController(telegramBot);
+        this.measurementNotificationsController = new MeasurementNotificationsController(telegramBot);
+        this.measurementChangedNotificationsController = new MeasurementChangedNotificationsController(telegramBot);
         this.subscriptionsController = new SubscriptionsController(telegramBot, iotClient);
         this.topicsController = new TopicsController(telegramBot, iotClient);
     }
@@ -85,13 +88,13 @@ class TelegramBotController {
         });
     }
     handleEventNotifications(notifications) {
-        return this.notificationsController.handleEventNotifications(notifications);
+        return this.eventNotificationsController.handleNotifications(notifications);
     }
     handleMeasurementNotifications(notifications) {
-        return this.notificationsController.handleMeasurementNotifications(notifications);
+        return this.measurementNotificationsController.handleNotifications(notifications);
     }
     handleMeasurementChangedNotifications(notifications) {
-        return this.notificationsController.handleMeasurementChangedNotifications(notifications);
+        return this.measurementChangedNotificationsController.handleNotifications(notifications);
     }
     async stop() {
         try {
