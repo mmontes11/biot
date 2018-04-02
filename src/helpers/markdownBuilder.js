@@ -85,6 +85,7 @@ export class MarkdownBuilder {
         markdown += `*ip*: ${thing.ip}\n`;
         markdown += `*location*: [Google Maps URL](${thing.googleMapsUrl})\n`;
         markdown += `*last observation*: ${thing.lastObservation}\n`;
+        markdown += `*topic*: ${thing.topic}\n`;
         const measurements = thing.supportedObservationTypes.measurement;
         const events = thing.supportedObservationTypes.event;
         if (!_.isEmpty(measurements)) {
