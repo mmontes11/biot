@@ -26,11 +26,11 @@ const receiveMeasurementNotifications = async(req, res, next) => {
     }
 };
 
-const receiveMeasurementChangedNotifications = async(req, res, next) => {
+const receiveMeasurementChangeNotifications = async(req, res, next) => {
     try {
         await _sendNotifications(req, res,
-                                requestValidator.isValidMeasurementChangedNotification,
-                                notifications => telegramBotController.handleMeasurementChangedNotifications(notifications));
+                                requestValidator.isValidMeasurementChangeNotification,
+                                notifications => telegramBotController.handleMeasurementChangeNotifications(notifications));
     } catch (err) {
         log.logError(err);
         res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
@@ -66,4 +66,4 @@ const _sendNotifications = async(req, res, isValidNotification, handleNotificati
     }
 };
 
-export default { receiveEventNotifications, receiveMeasurementNotifications, receiveMeasurementChangedNotifications };
+export default { receiveEventNotifications, receiveMeasurementNotifications, receiveMeasurementChangeNotifications };

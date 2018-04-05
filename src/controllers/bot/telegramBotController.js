@@ -2,7 +2,7 @@ import { AuthController } from "./authController"
 import { ThingsController } from "./thingsController";
 import { DefaultMessageController } from "./defaultMessageController";
 import { MeasurementStatsController } from "./measurementStatsController";
-import { EventNotificationsController, MeasurementNotificationsController, MeasurementChangedNotificationsController }
+import { EventNotificationsController, MeasurementNotificationsController, MeasurementChangeNotificationsController }
 from "./notificationsController";
 import { SubscriptionsController } from "./subscriptionsController";
 import { TopicsController } from "./topicsController";
@@ -20,7 +20,7 @@ class TelegramBotController {
         this.defaultMessageController = new DefaultMessageController(telegramBot);
         this.eventNotificationsController = new EventNotificationsController(telegramBot);
         this.measurementNotificationsController = new MeasurementNotificationsController(telegramBot);
-        this.measurementChangedNotificationsController = new MeasurementChangedNotificationsController(telegramBot);
+        this.measurementChangeNotificationsController = new MeasurementChangeNotificationsController(telegramBot);
         this.subscriptionsController = new SubscriptionsController(telegramBot, iotClient);
         this.topicsController = new TopicsController(telegramBot, iotClient);
     }
@@ -93,8 +93,8 @@ class TelegramBotController {
     handleMeasurementNotifications(notifications) {
         return this.measurementNotificationsController.handleNotifications(notifications);
     }
-    handleMeasurementChangedNotifications(notifications) {
-        return this.measurementChangedNotificationsController.handleNotifications(notifications);
+    handleMeasurementChangeNotifications(notifications) {
+        return this.measurementChangeNotificationsController.handleNotifications(notifications);
     }
     async stop() {
         try {

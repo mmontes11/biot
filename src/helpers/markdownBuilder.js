@@ -68,11 +68,12 @@ export class MarkdownBuilder {
         const measurement = `*${notification.observation.value}${notification.observation.unit.symbol}*`;
         return `A new *measurement* related to the topic \`${notification.topic}\` has been performed: ${measurement}\n\n`;
     }
-    static buildMeasurementChangedNotificationMD(notification) {
-        const growthRate = notification.changes.growthRate;
+    static buildMeasurementChangeNotificationMD(notification) {
+        const observation = notification.measurementChange.observation;
+        const growthRate = notification.measurementChange.growthRate;
         const growthRatePercentage = growthRate * 100;
         const changedText = MarkdownBuilder._changedText(growthRate);
-        const measurementMD = `*${notification.observation.value}${notification.observation.unit.symbol}*`;
+        const measurementMD = `*${observation.value}${observation.unit.symbol}*`;
         const growthRateMD = `*${growthRatePercentage > 0 ? "+" : ""}${growthRatePercentage}*`;
         return `It seems that the *measurement* related to the topic \`${notification.topic}\` is ${changedText}: ${measurementMD} (${growthRateMD}%)\n\n`;
     }

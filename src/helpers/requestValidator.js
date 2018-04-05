@@ -5,9 +5,13 @@ const isValidObservationNotification = (observationNotification) => {
             !_.isUndefined(observationNotification.chatId) && !_.isUndefined(observationNotification.observation);
 };
 
-const isValidMeasurementChangedNotification = (measurementChangedNotification) => {
-    return isValidObservationNotification(measurementChangedNotification) &&
-            !_.isUndefined(measurementChangedNotification.changes);
+const isValidMeasurementChangeNotification = (measurementChangeNotification) => {
+    return !_.isUndefined(measurementChangeNotification) && !_.isUndefined(measurementChangeNotification.topic) &&
+        !_.isUndefined(measurementChangeNotification.chatId) && _isValidMeasurementChange(measurementChangeNotification.measurementChange);
 };
 
-export default { isValidObservationNotification, isValidMeasurementChangedNotification };
+const _isValidMeasurementChange = (measurementChange) => {
+    return !_.isUndefined(measurementChange.observation) && !_.isUndefined(measurementChange.growthRate);
+};
+
+export default { isValidObservationNotification, isValidMeasurementChangeNotification };

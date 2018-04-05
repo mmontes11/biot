@@ -10,6 +10,6 @@ router
     .route('/notifications')
         .post(expressJwt({ secret: config.biotJwtSecret }),
             validationController.validateNotifications,
-            notificationsController.receiveMeasurementChangedNotifications);
+            notificationsController.receiveMeasurementChangeNotifications);
 
 export default router;

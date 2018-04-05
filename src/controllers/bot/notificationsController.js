@@ -67,13 +67,13 @@ class MeasurementNotificationsController extends NotificationsController {
     }
 }
 
-class MeasurementChangedNotificationsController extends NotificationsController {
+class MeasurementChangeNotificationsController extends NotificationsController {
     constructor(telegramBot) {
         super(telegramBot)
     }
     handleNotifications(notifications) {
-        return super.handleNotifications(notifications, MarkdownBuilder.buildMeasurementChangedNotificationMD)
+        return super.handleNotifications(notifications, MarkdownBuilder.buildMeasurementChangeNotificationMD)
     }
 }
 
-export { EventNotificationsController, MeasurementNotificationsController, MeasurementChangedNotificationsController }
+export { EventNotificationsController, MeasurementNotificationsController, MeasurementChangeNotificationsController }
