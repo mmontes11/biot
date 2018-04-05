@@ -31,7 +31,7 @@ export class MarkdownBuilder {
     static buildTopicsListMD(topics) {
         let markdown = "";
         _.forEach(topics, (topic) => {
-            markdown += `\`${topic}\`\n`;
+            markdown += `\`${topic}\`\n\n`;
         });
         return markdown;
     }
@@ -40,9 +40,7 @@ export class MarkdownBuilder {
         let markdown = `Send me the topic you want to subscribe in [MQTT topic](${mqttTopicUrl}) format.\n`;
         if (!_.isEmpty(topics)) {
             markdown += "*FYI*: Right now, I am receiving info about this topics:\n";
-            _.forEach(topics, (topic) => {
-                markdown += `\`${topic}\`\n`;
-            });
+            markdown += MarkdownBuilder.buildTopicsListMD(topics);
         }
         return markdown;
     }
@@ -67,18 +65,16 @@ export class MarkdownBuilder {
         return `A new *event* related to the topic \`${notification.topic}\` has just happened`;
     }
     static buildMeasurementNotificationMD(notification) {
-        let markdown = `A new *measurement* related to the topic \`${notification.topic}\` has been performed:\n\n`;
-        markdown += `*current value*: ${notification.observation.value}${notification.observation.unit.symbol}`;
-        return markdown
+        const measurement = `*${notification.observation.value}${notification.observation.unit.symbol}*`;
+        return `A new *measurement* related to the topic \`${notification.topic}\` has been performed: ${measurement}\n\n`;
     }
     static buildMeasurementChangedNotificationMD(notification) {
         const growthRate = notification.changes.growthRate;
         const growthRatePercentage = growthRate * 100;
         const changedText = MarkdownBuilder._changedText(growthRate);
-        let markdown = `It seems that the *measurement* related to the topic \`${notification.topic}\` is ${changedText}:\n\n`;
-        markdown += `*current value*: ${notification.observation.value}${notification.observation.unit.symbol}\n`;
-        markdown += `*growth rate*: ${growthRatePercentage}%`;
-        return markdown;
+        const measurementMD = `*${notification.observation.value}${notification.observation.unit.symbol}*`;
+        const growthRateMD = `*${growthRatePercentage > 0 ? "+" : ""}${growthRatePercentage}*`;
+        return `It seems that the *measurement* related to the topic \`${notification.topic}\` is ${changedText}: ${measurementMD} (${growthRateMD}%)\n\n`;
     }
     static _buildThingMD(thing) {
         let markdown = `*thing*: \`${thing.name}\`\n`;
