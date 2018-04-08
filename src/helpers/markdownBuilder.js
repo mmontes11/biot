@@ -58,7 +58,7 @@ export class MarkdownBuilder {
     static buildSubscriptionsMD(subscriptions) {
         let markdown = "";
         _.forEach(subscriptions, (subscription) => {
-            markdown += `\`${subscription.topic}\`\n`;
+            markdown += `\`${subscription.topic}\`\n\n`;
         });
         return markdown;
     }
