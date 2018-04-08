@@ -2,10 +2,11 @@ import _ from 'underscore';
 import { EmojiHandler } from './emojiHandler'
 
 export class MarkdownBuilder {
-    static buildDefaultMessageMD() {
+    static buildHelpMessageMD() {
         let markdown = `I'm an [Internet of Things](https://en.wikipedia.org/wiki/Internet_of_things) bot. `;
         markdown += `I can notify you about anything that happens your things.\n\n`;
         markdown += `Available commands:\n`;
+        markdown += `/help - Info about commands\n`;
         markdown += `/things - Lists things\n`;
         markdown += `/measurementstats - Provides measurement stats\n`;
         markdown += `/topics - Lists MQTT topics\n`;

@@ -1,6 +1,6 @@
 import { AuthController } from "./authController"
 import { ThingsController } from "./thingsController";
-import { DefaultMessageController } from "./defaultMessageController";
+import { HelpController } from "./helpController";
 import { MeasurementStatsController } from "./measurementStatsController";
 import { EventNotificationsController, MeasurementNotificationsController, MeasurementChangeNotificationsController }
 from "./notificationsController";
@@ -15,9 +15,9 @@ class TelegramBotController {
     constructor(telegramBot, iotClient) {
         this.bot = telegramBot;
         this.authController = new AuthController(telegramBot);
+        this.helpController = new HelpController(telegramBot);
         this.thingsController = new ThingsController(telegramBot, iotClient);
         this.measurementStatsController = new MeasurementStatsController(telegramBot, iotClient);
-        this.defaultMessageController = new DefaultMessageController(telegramBot);
         this.eventNotificationsController = new EventNotificationsController(telegramBot);
         this.measurementNotificationsController = new MeasurementNotificationsController(telegramBot);
         this.measurementChangeNotificationsController = new MeasurementChangeNotificationsController(telegramBot);
@@ -35,6 +35,10 @@ class TelegramBotController {
             }
             let handledMessage = false;
             const text = msg.text;
+            if (/\/help/.test(text)) {
+                this.helpController.sendHelpMessage(msg);
+                handledMessage = true;
+            }
             if (/\/things/.test(text)) {
                 this.thingsController.handleThingsCommand(msg);
                 handledMessage = true;
@@ -67,8 +71,8 @@ class TelegramBotController {
                     handledMessage = true;
                 }
             }
-            if (!handledMessage) {
-                this.defaultMessageController.sendDefaultMessage(msg);
+            if (!handledMessage && msg.chat.type === "private") {
+                this.helpController.sendHelpMessage(msg);
             }
         });
 

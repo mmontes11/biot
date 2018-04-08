@@ -1,12 +1,12 @@
 import { MarkdownBuilder } from '../../helpers/markdownBuilder';
 
-export class DefaultMessageController {
+export class HelpController {
     constructor(telegramBot) {
         this.bot = telegramBot;
     }
-    sendDefaultMessage(msg) {
+    sendHelpMessage(msg) {
         const chatId = msg.chat.id;
-        const markdown = MarkdownBuilder.buildDefaultMessageMD();
+        const markdown = MarkdownBuilder.buildHelpMessageMD();
         const options = {
             parse_mode: "Markdown",
             disable_web_page_preview: true
