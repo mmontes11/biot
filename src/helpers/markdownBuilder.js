@@ -1,6 +1,10 @@
 import _ from 'underscore';
 import { EmojiHandler } from './emojiHandler'
 
+const formatNumber = (number) => {
+    return parseFloat(number.toFixed(2))
+};
+
 export class MarkdownBuilder {
     static buildHelpMessageMD() {
         let markdown = `I'm an [Internet of Things](https://en.wikipedia.org/wiki/Internet_of_things) bot. `;
@@ -66,15 +70,15 @@ export class MarkdownBuilder {
         return `A new *event* related to the topic \`${notification.topic}\` has just happened`;
     }
     static buildMeasurementNotificationMD(notification) {
-        const measurement = `*${notification.observation.value}${notification.observation.unit.symbol}*`;
+        const measurement = `*${formatNumber(notification.observation.value)}${notification.observation.unit.symbol}*`;
         return `A new *measurement* related to the topic \`${notification.topic}\` has been performed: ${measurement}\n\n`;
     }
     static buildMeasurementChangeNotificationMD(notification) {
         const observation = notification.measurementChange.observation;
         const growthRate = notification.measurementChange.growthRate;
-        const growthRatePercentage = growthRate * 100;
+        const growthRatePercentage = formatNumber(growthRate * 100);
         const changedText = MarkdownBuilder._changedText(growthRate);
-        const measurementMD = `*${observation.value}${observation.unit.symbol}*`;
+        const measurementMD = `*${formatNumber(observation.value)}${observation.unit.symbol}*`;
         const growthRateMD = `*${growthRatePercentage > 0 ? "+" : ""}${growthRatePercentage}*`;
         return `It seems that the *measurement* related to the topic \`${notification.topic}\` is ${changedText}: ${measurementMD} (${growthRateMD}%)\n\n`;
     }
@@ -103,11 +107,11 @@ export class MarkdownBuilder {
         markdown += MarkdownBuilder._buildStatsElementMD('avg', statsType, statsElement.avg, unit);
         markdown += MarkdownBuilder._buildStatsElementMD('max', statsType, statsElement.max, unit);
         markdown += MarkdownBuilder._buildStatsElementMD('min', statsType, statsElement.min, unit);
-        markdown += `*stdDev*: ${statsElement.stdDev}\n`;
+        markdown += `*stdDev*: ${formatNumber(statsElement.stdDev)}\n`;
         return markdown;
     }
     static _buildStatsElementMD(statsName, statsType, value, unit) {
-        let markdown = `*${statsName}*: ${value}${unit}`;
+        let markdown = `*${statsName}*: ${formatNumber(value)}${unit}`;
         let emoji = EmojiHandler.emojiForStatsType(statsType, value);
         if (!_.isUndefined(emoji)) {
             markdown += ` ${emoji}\n`;
