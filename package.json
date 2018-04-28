@@ -66,7 +66,7 @@
     "babel-plugin-istanbul": "^4.1.6",
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
-    "eslint-config-mmontes11-node": "^1.0.4",
+    "eslint-config-mmontes11-node": "^1.0.5",
     "nodemon": "^1.17.3"
   }
 }
