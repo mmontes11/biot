@@ -27,7 +27,7 @@ export class MarkdownBuilder {
   static buildMeasurementStatsListMD(statsParams, stats) {
     let markdown = `\`${statsParams.thing}\` measurement stats by ${statsParams.timePeriod}:\n\n`;
     _.forEach(stats, statsElement => {
-      markdown += `${MarkdownBuilder._buildStatsMD(statsElement)}\n`;
+      markdown += `${MarkdownBuilder._buildMeasurementStatsMD(statsElement)}\n`;
     });
     return markdown;
   }
@@ -101,7 +101,7 @@ export class MarkdownBuilder {
     }
     return markdown;
   }
-  static _buildStatsMD(statsElement) {
+  static _buildMeasurementStatsMD(statsElement) {
     const statsType = statsElement.data.type;
     const unit = statsElement.data.unit.symbol;
     let markdown = `*type*: _${statsType}_\n`;

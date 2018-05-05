@@ -6,15 +6,28 @@ import { CallbackData, CallbackDataType } from "../../models/callbackData";
 import { TelegramInlineKeyboardHelper } from "../../helpers/telegramInlineKeyboardHelper";
 import messages from "../../utils/messages";
 
-export class MeasurementStatsController {
-  constructor(telegramBot, iotClient) {
+class ObservationStatsController {
+  constructor(
+    telegramBot,
+    iotClient,
+    selectThingCallbackDataType,
+    selectTimePeriodCallbackDataType,
+    getThings,
+    getStats,
+    getStatsMarkdown,
+  ) {
     this.bot = telegramBot;
-    this.iotClient = iotClient;
-    this.supportedCallbackDataTypes = [CallbackDataType.selectThing, CallbackDataType.selectTimePeriod];
     this.errorHandler = new ErrorHandler(telegramBot);
+    this.iotClient = iotClient;
+    this.selectThingCallbackDataType = selectThingCallbackDataType;
+    this.selectTimePeriodCallbackDataType = selectTimePeriodCallbackDataType;
+    this.supportedCallbackDataTypes = [this.selectThingCallbackDataType, this.selectTimePeriodCallbackDataType];
+    this.getThings = getThings;
+    this.getStats = getStats;
+    this.getStatsMarkdown = getStatsMarkdown;
     this.statsParamsByChat = [];
   }
-  handleMeasurementStatsCommand(msg) {
+  handleStatsCommand(msg) {
     const chatId = msg.chat.id;
     this._start(chatId);
   }
@@ -29,9 +42,8 @@ export class MeasurementStatsController {
       answerCallbackQuery();
       this._start(chatId);
     };
-
     switch (callbackData.type) {
-      case CallbackDataType.selectThing: {
+      case this.selectThingCallbackDataType: {
         if (_.isUndefined(statsParams.thing)) {
           statsParams.setThing(callbackData.data);
           this._selectTimePeriod(chatId, answerCallbackQuery);
@@ -40,7 +52,7 @@ export class MeasurementStatsController {
         }
         break;
       }
-      case CallbackDataType.selectTimePeriod: {
+      case this.selectTimePeriodCallbackDataType: {
         if (!_.isUndefined(statsParams.thing) && _.isUndefined(statsParams.timePeriod)) {
           statsParams.setTimePeriod(callbackData.data);
           this._deleteMeasurementStatsParams(chatId);
@@ -61,9 +73,9 @@ export class MeasurementStatsController {
   }
   async _selectThings(chatId) {
     try {
-      const response = await this.iotClient.thingsService.getThings();
+      const response = await this.getThings();
       const inlineKeyboardButtons = _.map(response.body.things, thing => {
-        const callbackData = new CallbackData(CallbackDataType.selectThing, thing.name);
+        const callbackData = new CallbackData(this.selectThingCallbackDataType, thing.name);
         return {
           text: thing.name,
           callback_data: callbackData.serialize(),
@@ -83,7 +95,7 @@ export class MeasurementStatsController {
     try {
       const response = await this.iotClient.timePeriodsService.getSupportedTimePeriods();
       const inlineKeyboardButtons = _.map(response.body.timePeriods, timePeriod => {
-        const callbackData = new CallbackData(CallbackDataType.selectTimePeriod, timePeriod);
+        const callbackData = new CallbackData(this.selectTimePeriodCallbackDataType, timePeriod);
         return {
           text: timePeriod,
           callback_data: callbackData.serialize(),
@@ -105,8 +117,8 @@ export class MeasurementStatsController {
     try {
       const {
         body: { stats },
-      } = await this.iotClient.measurementService.getStats(statsParams.toJSON());
-      const markdown = MarkdownBuilder.buildMeasurementStatsListMD(statsParams, stats);
+      } = await this.getStats(statsParams.toJSON());
+      const markdown = this.getStatsMarkdown(statsParams, stats);
       const options = {
         parse_mode: "Markdown",
         disable_web_page_preview: true,
@@ -134,3 +146,19 @@ export class MeasurementStatsController {
     return statsParams;
   }
 }
+
+class MeasurementStatsController extends ObservationStatsController {
+  constructor(telegramBot, iotClient) {
+    super(
+      telegramBot,
+      iotClient,
+      CallbackDataType.selectThingMeasurement,
+      CallbackDataType.selectTimePeriodMeasurement,
+      () => iotClient.thingsService.getThings(true, undefined),
+      statsParams => iotClient.measurementService.getStats(statsParams),
+      MarkdownBuilder.buildMeasurementStatsListMD
+    );
+  }
+}
+
+export { MeasurementStatsController };

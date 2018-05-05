@@ -1,7 +1,7 @@
 import { AuthController } from "./authController";
 import { ThingsController } from "./thingsController";
 import { HelpController } from "./helpController";
-import { MeasurementStatsController } from "./measurementStatsController";
+import { MeasurementStatsController } from "./observationStatsController";
 import {
   EventNotificationsController,
   MeasurementNotificationsController,
@@ -47,7 +47,7 @@ class TelegramBotController {
         handledMessage = true;
       }
       if (/\/measurementstats/.test(text)) {
-        this.measurementStatsController.handleMeasurementStatsCommand(msg);
+        this.measurementStatsController.handleStatsCommand(msg);
         handledMessage = true;
       }
       if (/\/topics/.test(text)) {

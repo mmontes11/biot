@@ -1,6 +1,6 @@
 const CallbackDataType = Object.freeze({
-  selectThing: "selectThing",
-  selectTimePeriod: "selectTimePeriod",
+  selectThingMeasurement: "selectThingMeasurement",
+  selectTimePeriodMeasurement: "selectTimePeriodMeasurement",
   selectTopicType: "selectTopicType",
   selectExistingTopic: "selectExistingTopic",
   selectSubscription: "selectSubscription",
