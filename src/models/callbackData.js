@@ -1,4 +1,8 @@
 const CallbackDataType = Object.freeze({
+  selectThingLastMeasurement: "selectThingLastMeasurement",
+  selectTypeLastMeasurement: "selectTypeLastMeasurement",
+  selectThingLastEvent: "selectThingLastEvent",
+  selectTypeLastEvent: "selectTypeLastEvent",
   selectThingMeasurement: "selectThingMeasurement",
   selectTimePeriodMeasurement: "selectTimePeriodMeasurement",
   selectThingEvent: "selectThingEvent",

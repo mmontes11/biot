@@ -14,7 +14,7 @@ class ObservationStatsController {
     selectTimePeriodCallbackDataType,
     getThings,
     getStats,
-    getStatsMarkdown,
+    getMarkdown,
   ) {
     this.bot = telegramBot;
     this.errorHandler = new ErrorHandler(telegramBot);
@@ -24,7 +24,7 @@ class ObservationStatsController {
     this.supportedCallbackDataTypes = [this.selectThingCallbackDataType, this.selectTimePeriodCallbackDataType];
     this.getThings = getThings;
     this.getStats = getStats;
-    this.getStatsMarkdown = getStatsMarkdown;
+    this.getMarkdown = getMarkdown;
     this.statsParamsByChat = [];
   }
   handleStatsCommand(msg) {
@@ -53,7 +53,7 @@ class ObservationStatsController {
         break;
       }
       case this.selectTimePeriodCallbackDataType: {
-        if (!_.isUndefined(statsParams.thing) && _.isUndefined(statsParams.timePeriod)) {
+        if (!_.isUndefined(statsParams.thing) && _.isUndefined(statsParams.type)) {
           statsParams.setTimePeriod(callbackData.data);
           this._deleteMeasurementStatsParams(chatId);
           this._showMeasurementStats(chatId, statsParams, answerCallbackQuery);
@@ -73,8 +73,8 @@ class ObservationStatsController {
   }
   async _selectThings(chatId) {
     try {
-      const response = await this.getThings();
-      const inlineKeyboardButtons = _.map(response.body.things, thing => {
+      const { body: { things } } = await this.getThings();
+      const inlineKeyboardButtons = _.map(things, thing => {
         const callbackData = new CallbackData(this.selectThingCallbackDataType, thing.name);
         return {
           text: thing.name,
@@ -93,8 +93,8 @@ class ObservationStatsController {
   }
   async _selectTimePeriod(chatId, answerCallbackQuery) {
     try {
-      const response = await this.iotClient.timePeriodsService.getSupportedTimePeriods();
-      const inlineKeyboardButtons = _.map(response.body.timePeriods, timePeriod => {
+      const { body: { timePeriods } } = await this.iotClient.timePeriodsService.getSupportedTimePeriods();
+      const inlineKeyboardButtons = _.map(timePeriods, timePeriod => {
         const callbackData = new CallbackData(this.selectTimePeriodCallbackDataType, timePeriod);
         return {
           text: timePeriod,
@@ -118,7 +118,7 @@ class ObservationStatsController {
       const {
         body: { stats },
       } = await this.getStats(statsParams.toJSON());
-      const markdown = this.getStatsMarkdown(statsParams, stats);
+      const markdown = this.getMarkdown(statsParams, stats);
       const options = {
         parse_mode: "Markdown",
         disable_web_page_preview: true,

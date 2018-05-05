@@ -14,6 +14,12 @@ export class ErrorHandler {
   handleTimePeriodsError(err, chatId) {
     this.handleError(err, chatId, errorMessages.noTimePeriodsAvailable, errorMessages.errorGettingTimePeriods);
   }
+  handleTypesError(err, chatId) {
+    this.handleError(err, chatId, errorMessages.noTypesAvailable, errorMessages.errorGettingTypes);
+  }
+  handleLastError(err, chatId) {
+    this.handleError(err, chatId, errorMessages.noLastAvailable, errorMessages.errorGettingLast);
+  }
   handleStatsError(err, chatId) {
     this.handleError(err, chatId, errorMessages.noStatsAvailable, errorMessages.errorGettingStats);
   }

@@ -1,6 +1,7 @@
 import { AuthController } from "./authController";
 import { ThingsController } from "./thingsController";
 import { HelpController } from "./helpController";
+import { LastMeasurementController, LastEventController } from "./lastObservationController";
 import { MeasurementStatsController, EventStatsController } from "./observationStatsController";
 import {
   EventNotificationsController,
@@ -20,6 +21,8 @@ class TelegramBotController {
     this.authController = new AuthController(telegramBot);
     this.helpController = new HelpController(telegramBot);
     this.thingsController = new ThingsController(telegramBot, iotClient);
+    this.lastMeasurementController = new LastMeasurementController(telegramBot, iotClient);
+    this.lastEventController = new LastEventController(telegramBot, iotClient);
     this.measurementStatsController = new MeasurementStatsController(telegramBot, iotClient);
     this.eventStatsController = new EventStatsController(telegramBot, iotClient);
     this.measurementNotificationsController = new MeasurementNotificationsController(telegramBot);
@@ -45,6 +48,14 @@ class TelegramBotController {
       }
       if (/\/things/.test(text)) {
         this.thingsController.handleThingsCommand(msg);
+        handledMessage = true;
+      }
+      if (/\/lastmeasurement/.test(text)) {
+        this.lastMeasurementController.handleLastCommand(msg);
+        handledMessage = true;
+      }
+      if (/\/lastevent/.test(text)) {
+        this.lastEventController.handleLastCommand(msg);
         handledMessage = true;
       }
       if (/\/measurementstats/.test(text)) {
@@ -87,6 +98,12 @@ class TelegramBotController {
     this.bot.on("callback_query", callbackQuery => {
       log.logCallbackQuery(callbackQuery);
       const callbackData = CallbackData.deserialize(callbackQuery.data);
+      if (this.lastMeasurementController.canHandleCallbackData(callbackData)) {
+        return this.lastMeasurementController.handleCallbackQuery(callbackQuery, callbackData);
+      }
+      if (this.lastEventController.canHandleCallbackData(callbackData)) {
+        return this.lastEventController.handleCallbackQuery(callbackQuery, callbackData)
+      }
       if (this.measurementStatsController.canHandleCallbackData(callbackData)) {
         return this.measurementStatsController.handleCallbackQuery(callbackQuery, callbackData);
       }

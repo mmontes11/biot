@@ -10,6 +10,8 @@ export class MarkdownBuilder {
     markdown += `Available commands:\n`;
     markdown += `/help - Info about commands\n`;
     markdown += `/things - Lists things\n`;
+    markdown += `/lastmeasurement - Gets last measurement\n`;
+    markdown += `/lastevent - Gets last event\n`;
     markdown += `/measurementstats - Provides measurement stats\n`;
     markdown += `/eventstats - Provides event stats\n`;
     markdown += `/topics - Lists MQTT topics\n`;
@@ -25,15 +27,31 @@ export class MarkdownBuilder {
     });
     return markdown;
   }
+  static buildLastMeasurementMD(lastParams, lastMeasurement) {
+    let markdown = `Last _${lastParams.type}_ measurement of \`${lastParams.thing}\`:\n\n`;
+    markdown += MarkdownBuilder._buildMeasurementElementWithEmojiMD(
+      "value",
+      lastParams.type,
+      lastMeasurement.value,
+      lastMeasurement.unit.symbol,
+    );
+    markdown += `*phenomenonTime*: ${lastMeasurement.phenomenonTime}`;
+    return markdown;
+  }
+  static buildLastEventMD(lastParams, lastEvent) {
+    let markdown = `Last _${lastParams.type}_ event of \`${lastParams.thing}\`:\n\n`;
+    markdown += `*phenomenonTime*: ${lastEvent.phenomenonTime}`;
+    return markdown;
+  }
   static buildMeasurementStatsListMD(statsParams, stats) {
-    let markdown = `\`${statsParams.thing}\` measurement stats by ${statsParams.timePeriod}:\n\n`;
+    let markdown = `\`${statsParams.thing}\` measurement stats by ${statsParams.type}:\n\n`;
     _.forEach(stats, statsElement => {
       markdown += `${MarkdownBuilder._buildMeasurementStatsMD(statsElement)}\n`;
     });
     return markdown;
   }
   static buildEventStatsListMD(statsParams, stats) {
-    let markdown = `\`${statsParams.thing}\` event stats by ${statsParams.timePeriod}:\n\n`;
+    let markdown = `\`${statsParams.thing}\` event stats by ${statsParams.type}:\n\n`;
     _.forEach(stats, statsElement => {
       markdown += `${MarkdownBuilder._buildEventStatsMD(statsElement)}\n`;
     });
@@ -113,9 +131,9 @@ export class MarkdownBuilder {
     const statsType = statsElement.data.type;
     const unit = statsElement.data.unit.symbol;
     let markdown = `*type*: _${statsType}_\n`;
-    markdown += MarkdownBuilder._buildStatsElementMD("avg", statsType, statsElement.avg, unit);
-    markdown += MarkdownBuilder._buildStatsElementMD("max", statsType, statsElement.max, unit);
-    markdown += MarkdownBuilder._buildStatsElementMD("min", statsType, statsElement.min, unit);
+    markdown += MarkdownBuilder._buildMeasurementElementWithEmojiMD("avg", statsType, statsElement.avg, unit);
+    markdown += MarkdownBuilder._buildMeasurementElementWithEmojiMD("max", statsType, statsElement.max, unit);
+    markdown += MarkdownBuilder._buildMeasurementElementWithEmojiMD("min", statsType, statsElement.min, unit);
     markdown += `*stdDev*: ${formatNumber(statsElement.stdDev)}\n`;
     return markdown;
   }
@@ -129,7 +147,7 @@ export class MarkdownBuilder {
     markdown += `*stdDevByHour*: ${formatNumber(statsElement.stdDevByHour)}\n`;
     return markdown;
   }
-  static _buildStatsElementMD(statsName, statsType, value, unit) {
+  static _buildMeasurementElementWithEmojiMD(statsName, statsType, value, unit) {
     let markdown = `*${statsName}*: ${formatNumber(value)}${unit}`;
     const emoji = EmojiHandler.emojiForStatsType(statsType, value);
     if (!_.isUndefined(emoji)) {
