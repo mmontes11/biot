@@ -11,6 +11,7 @@ export class MarkdownBuilder {
     markdown += `/help - Info about commands\n`;
     markdown += `/things - Lists things\n`;
     markdown += `/measurementstats - Provides measurement stats\n`;
+    markdown += `/eventstats - Provides event stats\n`;
     markdown += `/topics - Lists MQTT topics\n`;
     markdown += `/subscribe - Subscribes to a MQTT topic\n`;
     markdown += `/unsubscribe - Unsubscribes from a MQTT topic\n`;
@@ -28,6 +29,13 @@ export class MarkdownBuilder {
     let markdown = `\`${statsParams.thing}\` measurement stats by ${statsParams.timePeriod}:\n\n`;
     _.forEach(stats, statsElement => {
       markdown += `${MarkdownBuilder._buildMeasurementStatsMD(statsElement)}\n`;
+    });
+    return markdown;
+  }
+  static buildEventStatsListMD(statsParams, stats) {
+    let markdown = `\`${statsParams.thing}\` event stats by ${statsParams.timePeriod}:\n\n`;
+    _.forEach(stats, statsElement => {
+      markdown += `${MarkdownBuilder._buildEventStatsMD(statsElement)}\n`;
     });
     return markdown;
   }
@@ -109,6 +117,16 @@ export class MarkdownBuilder {
     markdown += MarkdownBuilder._buildStatsElementMD("max", statsType, statsElement.max, unit);
     markdown += MarkdownBuilder._buildStatsElementMD("min", statsType, statsElement.min, unit);
     markdown += `*stdDev*: ${formatNumber(statsElement.stdDev)}\n`;
+    return markdown;
+  }
+  static _buildEventStatsMD(statsElement) {
+    const statsType = statsElement.data.type;
+    let markdown = `*type*: _${statsType}_\n`;
+    markdown += `*total*: ${formatNumber(statsElement.total)}\n`;
+    markdown += `*avgByHour*: ${formatNumber(statsElement.avgByHour)}\n`;
+    markdown += `*maxByHour*: ${formatNumber(statsElement.maxByHour)}\n`;
+    markdown += `*minByHour*: ${formatNumber(statsElement.minByHour)}\n`;
+    markdown += `*stdDevByHour*: ${formatNumber(statsElement.stdDevByHour)}\n`;
     return markdown;
   }
   static _buildStatsElementMD(statsName, statsType, value, unit) {

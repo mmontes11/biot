@@ -161,4 +161,18 @@ class MeasurementStatsController extends ObservationStatsController {
   }
 }
 
-export { MeasurementStatsController };
+class EventStatsController extends ObservationStatsController {
+  constructor(telegramBot, iotClient) {
+    super(
+      telegramBot,
+      iotClient,
+      CallbackDataType.selectThingEvent,
+      CallbackDataType.selectTimePeriodEvent,
+      () => iotClient.thingsService.getThings(undefined, true),
+      statsParams => iotClient.eventService.getStats(statsParams),
+      MarkdownBuilder.buildEventStatsListMD
+    );
+  }
+}
+
+export { MeasurementStatsController, EventStatsController };
