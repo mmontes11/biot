@@ -73,7 +73,9 @@ class ObservationStatsController {
   }
   async _selectThings(chatId) {
     try {
-      const { body: { things } } = await this.getThings();
+      const {
+        body: { things },
+      } = await this.getThings();
       const inlineKeyboardButtons = _.map(things, thing => {
         const callbackData = new CallbackData(this.selectThingCallbackDataType, thing.name);
         return {
@@ -93,7 +95,9 @@ class ObservationStatsController {
   }
   async _selectTimePeriod(chatId, answerCallbackQuery) {
     try {
-      const { body: { timePeriods } } = await this.iotClient.timePeriodsService.getSupportedTimePeriods();
+      const {
+        body: { timePeriods },
+      } = await this.iotClient.timePeriodsService.getSupportedTimePeriods();
       const inlineKeyboardButtons = _.map(timePeriods, timePeriod => {
         const callbackData = new CallbackData(this.selectTimePeriodCallbackDataType, timePeriod);
         return {
@@ -156,7 +160,7 @@ class MeasurementStatsController extends ObservationStatsController {
       CallbackDataType.selectTimePeriodMeasurement,
       () => iotClient.thingsService.getThings(true, undefined),
       statsParams => iotClient.measurementService.getStats(statsParams),
-      MarkdownBuilder.buildMeasurementStatsListMD
+      MarkdownBuilder.buildMeasurementStatsListMD,
     );
   }
 }
@@ -170,7 +174,7 @@ class EventStatsController extends ObservationStatsController {
       CallbackDataType.selectTimePeriodEvent,
       () => iotClient.thingsService.getThings(undefined, true),
       statsParams => iotClient.eventService.getStats(statsParams),
-      MarkdownBuilder.buildEventStatsListMD
+      MarkdownBuilder.buildEventStatsListMD,
     );
   }
 }

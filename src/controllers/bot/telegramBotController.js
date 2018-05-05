@@ -99,19 +99,19 @@ class TelegramBotController {
       log.logCallbackQuery(callbackQuery);
       const callbackData = CallbackData.deserialize(callbackQuery.data);
       if (this.lastMeasurementController.canHandleCallbackData(callbackData)) {
-        return this.lastMeasurementController.handleCallbackQuery(callbackQuery, callbackData);
+        this.lastMeasurementController.handleCallbackQuery(callbackQuery, callbackData);
       }
       if (this.lastEventController.canHandleCallbackData(callbackData)) {
-        return this.lastEventController.handleCallbackQuery(callbackQuery, callbackData)
+        this.lastEventController.handleCallbackQuery(callbackQuery, callbackData);
       }
       if (this.measurementStatsController.canHandleCallbackData(callbackData)) {
-        return this.measurementStatsController.handleCallbackQuery(callbackQuery, callbackData);
+        this.measurementStatsController.handleCallbackQuery(callbackQuery, callbackData);
       }
       if (this.eventStatsController.canHandleCallbackData(callbackData)) {
-        return this.eventStatsController.handleCallbackQuery(callbackQuery, callbackData);
+        this.eventStatsController.handleCallbackQuery(callbackQuery, callbackData);
       }
       if (this.subscriptionsController.canHandleCallbackData(callbackData)) {
-        return this.subscriptionsController.handleCallbackQuery(callbackQuery, callbackData);
+        this.subscriptionsController.handleCallbackQuery(callbackQuery, callbackData);
       }
     });
 
