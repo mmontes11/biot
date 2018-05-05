@@ -44,14 +44,14 @@ export class MarkdownBuilder {
     return markdown;
   }
   static buildMeasurementStatsListMD(statsParams, stats) {
-    let markdown = `\`${statsParams.thing}\` measurement stats by ${statsParams.type}:\n\n`;
+    let markdown = `\`${statsParams.thing}\` measurement stats by ${statsParams.timePeriod}:\n\n`;
     _.forEach(stats, statsElement => {
       markdown += `${MarkdownBuilder._buildMeasurementStatsMD(statsElement)}\n`;
     });
     return markdown;
   }
   static buildEventStatsListMD(statsParams, stats) {
-    let markdown = `\`${statsParams.thing}\` event stats by ${statsParams.type}:\n\n`;
+    let markdown = `\`${statsParams.thing}\` event stats by ${statsParams.timePeriod}:\n\n`;
     _.forEach(stats, statsElement => {
       markdown += `${MarkdownBuilder._buildEventStatsMD(statsElement)}\n`;
     });
