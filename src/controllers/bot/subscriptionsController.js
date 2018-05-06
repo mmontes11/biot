@@ -12,8 +12,8 @@ export class SubscriptionsController {
   constructor(telegramBot, iotClient) {
     this.bot = telegramBot;
     this.iotClient = iotClient;
-    this.subscribeCallbackDataTypes = [CallbackDataType.selectTopicType, CallbackDataType.selectExistingTopic];
-    this.unsubscribeCallbackDataTypes = [CallbackDataType.selectSubscription];
+    this.subscribeCallbackDataTypes = [CallbackDataType.topicType, CallbackDataType.existingTopic];
+    this.unsubscribeCallbackDataTypes = [CallbackDataType.subscription];
     this.supportedCallbackDataTypes = [...this.subscribeCallbackDataTypes, ...this.unsubscribeCallbackDataTypes];
     this.subscriptionParamsByChat = [];
     this.responseHandler = new ResponseHandler(telegramBot);
@@ -86,7 +86,7 @@ export class SubscriptionsController {
         body: { subscriptions },
       } = await this.iotClient.subscriptionsService.getSubscriptionsByChat(chatId);
       const inlineKeyboardButtons = _.map(subscriptions, subscription => {
-        const callbackData = new CallbackData(CallbackDataType.selectSubscription, subscription._id);
+        const callbackData = new CallbackData(CallbackDataType.subscription, subscription._id);
         return {
           text: subscription.topic,
           callback_data: callbackData.serialize(),
@@ -121,7 +121,7 @@ export class SubscriptionsController {
     const subscriptionParams = this._getOrCreateSubscriptionParams(chatId);
     const answerCallbackQuery = () => this.bot.answerCallbackQuery(callbackQuery.id);
     switch (callbackData.type) {
-      case CallbackDataType.selectTopicType: {
+      case CallbackDataType.topicType: {
         if (_.isUndefined(subscriptionParams.topicType)) {
           subscriptionParams.setTopicType(callbackData.data);
           switch (subscriptionParams.topicType) {
@@ -142,7 +142,7 @@ export class SubscriptionsController {
         }
         break;
       }
-      case CallbackDataType.selectExistingTopic: {
+      case CallbackDataType.existingTopic: {
         if (_.isUndefined(subscriptionParams.topicId)) {
           subscriptionParams.setTopicId(callbackData.data);
           this._createSubscription(chatId, subscriptionParams, answerCallbackQuery);
@@ -159,14 +159,14 @@ export class SubscriptionsController {
   _handleUnsubscribeCallbackQuery(callbackQuery, callbackData) {
     const chatId = callbackQuery.message.chat.id;
     const answerCallbackQuery = () => this.bot.answerCallbackQuery(callbackQuery.id);
-    if (callbackData.type === CallbackDataType.selectSubscription) {
+    if (callbackData.type === CallbackDataType.subscription) {
       this._deleteSubscription(chatId, callbackData.data, answerCallbackQuery);
     }
   }
   _selectTopicType(chatId) {
     try {
       const inlineKeyboardButtons = _.map(availableTopicTypes, topicType => {
-        const callbackData = new CallbackData(CallbackDataType.selectTopicType, topicType);
+        const callbackData = new CallbackData(CallbackDataType.topicType, topicType);
         return {
           text: topicType,
           callback_data: callbackData.serialize(),
@@ -192,7 +192,7 @@ export class SubscriptionsController {
         return this.errorHandler.handleGetTopicsError(err, chatId);
       }
       const inlineKeyboardButtons = _.map(res.body.topics, topicObject => {
-        const callbackData = new CallbackData(CallbackDataType.selectExistingTopic, topicObject._id);
+        const callbackData = new CallbackData(CallbackDataType.existingTopic, topicObject._id);
         return {
           text: topicObject.topic,
           callback_data: callbackData.serialize(),

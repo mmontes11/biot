@@ -10,8 +10,8 @@ class ObservationStatsController {
   constructor(
     telegramBot,
     iotClient,
-    selectThingCallbackDataType,
-    selectTimePeriodCallbackDataType,
+    thingCallbackDataType,
+    timePeriodCallbackDataType,
     getThings,
     getStats,
     getMarkdown,
@@ -19,9 +19,9 @@ class ObservationStatsController {
     this.bot = telegramBot;
     this.errorHandler = new ErrorHandler(telegramBot);
     this.iotClient = iotClient;
-    this.selectThingCallbackDataType = selectThingCallbackDataType;
-    this.selectTimePeriodCallbackDataType = selectTimePeriodCallbackDataType;
-    this.supportedCallbackDataTypes = [this.selectThingCallbackDataType, this.selectTimePeriodCallbackDataType];
+    this.thingCallbackDataType = thingCallbackDataType;
+    this.timePeriodCallbackDataType = timePeriodCallbackDataType;
+    this.supportedCallbackDataTypes = [this.thingCallbackDataType, this.timePeriodCallbackDataType];
     this.getThings = getThings;
     this.getStats = getStats;
     this.getMarkdown = getMarkdown;
@@ -43,7 +43,7 @@ class ObservationStatsController {
       this._start(chatId);
     };
     switch (callbackData.type) {
-      case this.selectThingCallbackDataType: {
+      case this.thingCallbackDataType: {
         if (_.isUndefined(statsParams.thing)) {
           statsParams.setThing(callbackData.data);
           this._selectTimePeriod(chatId, answerCallbackQuery);
@@ -52,7 +52,7 @@ class ObservationStatsController {
         }
         break;
       }
-      case this.selectTimePeriodCallbackDataType: {
+      case this.timePeriodCallbackDataType: {
         if (!_.isUndefined(statsParams.thing) && _.isUndefined(statsParams.type)) {
           statsParams.setTimePeriod(callbackData.data);
           this._deleteMeasurementStatsParams(chatId);
@@ -77,7 +77,7 @@ class ObservationStatsController {
         body: { things },
       } = await this.getThings();
       const inlineKeyboardButtons = _.map(things, thing => {
-        const callbackData = new CallbackData(this.selectThingCallbackDataType, thing.name);
+        const callbackData = new CallbackData(this.thingCallbackDataType, thing.name);
         return {
           text: thing.name,
           callback_data: callbackData.serialize(),
@@ -99,7 +99,7 @@ class ObservationStatsController {
         body: { timePeriods },
       } = await this.iotClient.timePeriodsService.getSupportedTimePeriods();
       const inlineKeyboardButtons = _.map(timePeriods, timePeriod => {
-        const callbackData = new CallbackData(this.selectTimePeriodCallbackDataType, timePeriod);
+        const callbackData = new CallbackData(this.timePeriodCallbackDataType, timePeriod);
         return {
           text: timePeriod,
           callback_data: callbackData.serialize(),
@@ -156,8 +156,8 @@ class MeasurementStatsController extends ObservationStatsController {
     super(
       telegramBot,
       iotClient,
-      CallbackDataType.selectThingMeasurement,
-      CallbackDataType.selectTimePeriodMeasurement,
+      CallbackDataType.thingMeasurement,
+      CallbackDataType.timePeriodMeasurement,
       () => iotClient.thingsService.getThings(true, undefined),
       statsParams => iotClient.measurementService.getStats(statsParams),
       MarkdownBuilder.buildMeasurementStatsListMD,
@@ -170,8 +170,8 @@ class EventStatsController extends ObservationStatsController {
     super(
       telegramBot,
       iotClient,
-      CallbackDataType.selectThingEvent,
-      CallbackDataType.selectTimePeriodEvent,
+      CallbackDataType.thingEvent,
+      CallbackDataType.timePeriodEvent,
       () => iotClient.thingsService.getThings(undefined, true),
       statsParams => iotClient.eventService.getStats(statsParams),
       MarkdownBuilder.buildEventStatsListMD,

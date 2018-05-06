@@ -1,15 +1,15 @@
 const CallbackDataType = Object.freeze({
-  selectThingLastMeasurement: "selectThingLastMeasurement",
-  selectTypeLastMeasurement: "selectTypeLastMeasurement",
-  selectThingLastEvent: "selectThingLastEvent",
-  selectTypeLastEvent: "selectTypeLastEvent",
-  selectThingMeasurement: "selectThingMeasurement",
-  selectTimePeriodMeasurement: "selectTimePeriodMeasurement",
-  selectThingEvent: "selectThingEvent",
-  selectTimePeriodEvent: "selectTimePeriodEvent",
-  selectTopicType: "selectTopicType",
-  selectExistingTopic: "selectExistingTopic",
-  selectSubscription: "selectSubscription",
+  thingLastMeasurement: "THLM",
+  typeLastMeasurement: "TYLM",
+  thingLastEvent: "THLE",
+  typeLastEvent: "TYLE",
+  thingMeasurement: "THM",
+  timePeriodMeasurement: "TPME",
+  thingEvent: "THE",
+  timePeriodEvent: "TPE",
+  topicType: "TOTY",
+  existingTopic: "ETO",
+  subscription: "S",
 });
 
 class CallbackData {

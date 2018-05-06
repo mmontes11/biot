@@ -7,20 +7,12 @@ import { MarkdownBuilder } from "../../helpers/markdownBuilder";
 import messages from "../../utils/messages";
 
 class LastObservationController {
-  constructor(
-    telegramBot,
-    selectThingCallbackDataType,
-    selectTypeCallbackDataType,
-    getThings,
-    getTypes,
-    getLast,
-    getMarkdown,
-  ) {
+  constructor(telegramBot, thingCallbackDataType, typeCallbackDataType, getThings, getTypes, getLast, getMarkdown) {
     this.bot = telegramBot;
     this.errorHandler = new ErrorHandler(telegramBot);
-    this.selectThingCallbackDataType = selectThingCallbackDataType;
-    this.selectTypeCallbackDataType = selectTypeCallbackDataType;
-    this.supportedCallbackDataTypes = [this.selectThingCallbackDataType, this.selectTypeCallbackDataType];
+    this.thingCallbackDataType = thingCallbackDataType;
+    this.typeCallbackDataType = typeCallbackDataType;
+    this.supportedCallbackDataTypes = [this.thingCallbackDataType, this.typeCallbackDataType];
     this.getThings = getThings;
     this.getTypes = getTypes;
     this.getLast = getLast;
@@ -43,7 +35,7 @@ class LastObservationController {
       this._start(chatId);
     };
     switch (callbackData.type) {
-      case this.selectThingCallbackDataType: {
+      case this.thingCallbackDataType: {
         if (_.isUndefined(lastParams.thing)) {
           lastParams.setThing(callbackData.data);
           this._selectType(chatId, lastParams, answerCallbackQuery);
@@ -52,7 +44,7 @@ class LastObservationController {
         }
         break;
       }
-      case this.selectTypeCallbackDataType: {
+      case this.typeCallbackDataType: {
         if (!_.isUndefined(lastParams.thing) && _.isUndefined(lastParams.type)) {
           lastParams.setType(callbackData.data);
           this._deleteLastParams(chatId);
@@ -77,7 +69,7 @@ class LastObservationController {
         body: { things },
       } = await this.getThings();
       const inlineKeyboardButtons = _.map(things, thing => {
-        const callbackData = new CallbackData(this.selectThingCallbackDataType, thing.name);
+        const callbackData = new CallbackData(this.thingCallbackDataType, thing.name);
         return {
           text: thing.name,
           callback_data: callbackData.serialize(),
@@ -97,7 +89,7 @@ class LastObservationController {
     try {
       const types = await this.getTypes(lastParams.thing);
       const inlineKeyboardButtons = _.map(types, type => {
-        const callbackData = new CallbackData(this.selectTypeCallbackDataType, type);
+        const callbackData = new CallbackData(this.typeCallbackDataType, type);
         return {
           text: type,
           callback_data: callbackData.serialize(),
@@ -151,8 +143,8 @@ class LastMeasurementController extends LastObservationController {
   constructor(telegramBot, iotClient) {
     super(
       telegramBot,
-      CallbackDataType.selectThingLastMeasurement,
-      CallbackDataType.selectTypeLastMeasurement,
+      CallbackDataType.thingLastMeasurement,
+      CallbackDataType.typeLastMeasurement,
       () => iotClient.thingsService.getThings(true, undefined),
       async thing => {
         try {
@@ -176,8 +168,8 @@ class LastEventController extends LastObservationController {
   constructor(telegramBot, iotClient) {
     super(
       telegramBot,
-      CallbackDataType.selectThingLastEvent,
-      CallbackDataType.selectTypeLastEvent,
+      CallbackDataType.thingLastEvent,
+      CallbackDataType.typeLastEvent,
       () => iotClient.thingsService.getThings(undefined, true),
       async thing => {
         try {
