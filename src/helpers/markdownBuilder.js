@@ -40,7 +40,10 @@ export class MarkdownBuilder {
   }
   static buildLastEventMD(lastParams, lastEvent) {
     let markdown = `Last _${lastParams.type}_ event of \`${lastParams.thing}\`:\n\n`;
-    markdown += `*phenomenonTime*: ${lastEvent.phenomenonTime}`;
+    markdown += `*phenomenonTime*: ${lastEvent.phenomenonTime}\n`;
+    if (!_.isUndefined(lastEvent.value)) {
+      markdown += `*value*: ${lastEvent.value}\n`;
+    }
     return markdown;
   }
   static buildMeasurementStatsListMD(statsParams, stats) {
@@ -91,7 +94,13 @@ export class MarkdownBuilder {
     return markdown;
   }
   static buildEventNotificationMD(notification) {
-    return `A new *event* related to the topic \`${notification.topic}\` has just happened`;
+    let markdown = `A new *event* related to the topic \`${notification.topic}\` has just happened`;
+    if (!_.isUndefined(notification.observation.value)) {
+      markdown += `: *${notification.observation.value}*\n\n`;
+    } else {
+      markdown += "\n\n";
+    }
+    return markdown;
   }
   static buildMeasurementNotificationMD(notification) {
     const measurement = `*${formatNumber(notification.observation.value)}${notification.observation.unit.symbol}*`;
