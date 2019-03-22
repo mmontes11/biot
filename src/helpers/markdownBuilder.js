@@ -137,23 +137,27 @@ export class MarkdownBuilder {
     return markdown;
   }
   static _buildMeasurementStatsMD(statsElement) {
-    const statsType = statsElement.data.type;
-    const unit = statsElement.data.unit.symbol;
+    const statsType = statsElement.type;
+    const unit = statsElement.unit.symbol;
     let markdown = `*type*: _${statsType}_\n`;
-    markdown += MarkdownBuilder._buildMeasurementElementWithEmojiMD("avg", statsType, statsElement.avg, unit);
-    markdown += MarkdownBuilder._buildMeasurementElementWithEmojiMD("max", statsType, statsElement.max, unit);
-    markdown += MarkdownBuilder._buildMeasurementElementWithEmojiMD("min", statsType, statsElement.min, unit);
-    markdown += `*stdDev*: ${formatNumber(statsElement.stdDev)}\n`;
+    statsElement.data.forEach(dataElement => {
+      markdown += MarkdownBuilder._buildMeasurementElementWithEmojiMD("avg", statsType, dataElement.avg, unit);
+      markdown += MarkdownBuilder._buildMeasurementElementWithEmojiMD("max", statsType, dataElement.max, unit);
+      markdown += MarkdownBuilder._buildMeasurementElementWithEmojiMD("min", statsType, dataElement.min, unit);
+      markdown += `*stdDev*: ${formatNumber(dataElement.stdDev)}\n`;
+    });
     return markdown;
   }
   static _buildEventStatsMD(statsElement) {
-    const statsType = statsElement.data.type;
+    const statsType = statsElement.type;
     let markdown = `*type*: _${statsType}_\n`;
-    markdown += `*total*: ${formatNumber(statsElement.total)}\n`;
-    markdown += `*avgByHour*: ${formatNumber(statsElement.avgByHour)}\n`;
-    markdown += `*maxByHour*: ${formatNumber(statsElement.maxByHour)}\n`;
-    markdown += `*minByHour*: ${formatNumber(statsElement.minByHour)}\n`;
-    markdown += `*stdDevByHour*: ${formatNumber(statsElement.stdDevByHour)}\n`;
+    statsElement.data.forEach(dataElement => {
+      markdown += `*total*: ${formatNumber(dataElement.total)}\n`;
+      markdown += `*avgByHour*: ${formatNumber(dataElement.avgByHour)}\n`;
+      markdown += `*maxByHour*: ${formatNumber(dataElement.maxByHour)}\n`;
+      markdown += `*minByHour*: ${formatNumber(dataElement.minByHour)}\n`;
+      markdown += `*stdDevByHour*: ${formatNumber(dataElement.stdDevByHour)}\n`;
+    });
     return markdown;
   }
   static _buildMeasurementElementWithEmojiMD(statsName, statsType, value, unit) {
